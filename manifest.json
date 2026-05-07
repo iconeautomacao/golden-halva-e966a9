@@ -1,0 +1,22 @@
+{
+  "name": "Salim & Salim - Gest\u00e3o de Clientes",
+  "short_name": "Salim & Salim",
+  "description": "Sistema de gest\u00e3o de clientes ICONE/SOTEC",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f0f10",
+  "theme_color": "#0f0f10",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "https://api.iconify.design/mdi:account-group.svg?color=%23e8c96a&width=192&height=192",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "https://api.iconify.design/mdi:account-group.svg?color=%23e8c96a&width=512&height=512",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
