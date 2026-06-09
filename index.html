@@ -227,7 +227,7 @@ html,body{height:100%;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;
 .cbadge-pen{background:var(--ybg);color:var(--yellow);}
 
 /* ── CONTENT ── */
-.content{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;min-height:0;height:calc(100vh - 56px);}
+.content{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;}
 .section{padding:12px;display:none;}
 .section.on{display:block;}
 
@@ -390,7 +390,6 @@ tbody tr:last-child td{border-bottom:none;}
 
 /* ── BOTTOM NAV (mobile only) ── */
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surf);border-top:1px solid var(--bdr);z-index:200;padding-bottom:env(safe-area-inset-bottom);}
-.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--surf);border-top:1px solid var(--bdr);z-index:200;padding-bottom:env(safe-area-inset-bottom);}
 .bnav-inner{display:flex;}
 .bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px;cursor:pointer;color:var(--muted);font-size:10px;font-weight:500;transition:color .15s;border:none;background:none;}
 .bnav-btn.on{color:var(--accent);}
@@ -495,281 +494,441 @@ tbody tr:last-child td{border-bottom:none;}
   .auth-box{padding:22px 16px;}
 }
 
-/* ── STAT CARDS ── */
-.stat-card{background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--r);padding:10px 14px;cursor:pointer;flex:1;min-width:60px;text-align:center;transition:all .15s;}
-.stat-card:hover{border-color:var(--accent);}
-.stat-card.act{border-left:3px solid var(--green);}
-.stat-card.can{border-left:3px solid var(--red);}
-.stat-card.pen{border-left:3px solid var(--yellow);}
-.stat-n{font-size:1.4rem;font-weight:700;color:var(--accent);}
-.stat-l{font-size:10px;color:var(--muted);text-transform:uppercase;}
-
-/* ── TABELA DESKTOP ── */
-.tbl{width:100%;border-collapse:collapse;font-size:13px;}
-.tbl th{background:var(--surf2);padding:10px 12px;text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;border-bottom:1px solid var(--bdr);white-space:nowrap;}
-.tbl td{padding:10px 12px;border-bottom:1px solid var(--bdr);vertical-align:middle;}
-.tbl tr:hover td{background:var(--surf2);}
-.tbl td.td-na{color:var(--muted);font-style:italic;}
-
-/* ── FORMULÁRIO ── */
-.finp{width:100%;padding:9px 12px;background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--rs);color:var(--text);font-size:13px;font-family:inherit;margin-bottom:10px;outline:none;transition:border .15s;}
-.finp:focus{border-color:var(--accent);}
-.flabel{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;}
-.perm-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px;}
-.perm-opt{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--rs);cursor:pointer;font-size:13px;}
-.perm-opt input{accent-color:var(--accent);}
-
-/* ── STATUS TABS ── */
-.status-tabs{display:flex;gap:4px;padding:8px 12px;border-bottom:1px solid var(--bdr);overflow-x:auto;}
-.stab{padding:5px 12px;border-radius:20px;border:1px solid var(--bdr);background:transparent;color:var(--muted);font-size:12px;cursor:pointer;white-space:nowrap;transition:all .15s;}
-.stab.active,.stab.on{background:var(--surf2);color:var(--text);border-color:var(--accent);}
-.stab.act{color:var(--green);}
-.stab.can{color:var(--red);}
-.stab.pen{color:var(--yellow);}
-
-/* ── TOTALS ROW ── */
-.totals-row{padding:8px 12px;font-size:12px;color:var(--muted);border-top:1px solid var(--bdr);display:flex;flex-wrap:wrap;gap:12px;}
-.totals-row b{color:var(--accent);}
-
-/* ── CREDENCIAIS ── */
-.cred-row{display:flex;gap:12px;padding:8px 0;border-bottom:1px solid var(--bdr);}
-.cred-label{font-size:11px;color:var(--muted);text-transform:uppercase;min-width:60px;}
-.cred-val{font-size:13px;font-weight:500;}
-
 </style>
 </head>
 <body>
-<!-- LOADING -->
-<div id="loading-screen" style="position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px">
-  <div style="font-size:2rem">🏢</div>
-  <div id="loading-msg" style="color:var(--muted);font-size:13px">Carregando...</div>
-</div>
 
-<!-- TOAST -->
-<div id="toast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:10px 20px;font-size:13px;z-index:9000;display:none;box-shadow:0 4px 20px rgba(0,0,0,.4)"></div>
+  
+    Salim &amp; Salim
+    Gestão de Clientes ICONE / SOTEC
+    
+      Entrar
+      + Novo usuário
+    
 
-<!-- AUTH -->
-<div id="auth" style="position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:500;padding:16px;">
-  <div class="auth-box">
-    <div style="text-align:center;margin-bottom:24px">
-      <div style="font-size:2rem;margin-bottom:8px">🏢</div>
-      <div style="font-size:1.1rem;font-weight:700;color:var(--text)">Salim & Salim</div>
-      <div style="font-size:11px;color:var(--muted)">Gestão de Clientes ICONE / SOTEC</div>
-    </div>
-    <div style="display:flex;gap:4px;margin-bottom:20px;background:var(--surf2);border-radius:8px;padding:4px">
-      <button id="atab-log" onclick="switchAuthTab('login')" style="flex:1;padding:8px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;background:var(--accent);color:#fff">Entrar</button>
-      <button id="atab-reg" onclick="switchAuthTab('register')" style="flex:1;padding:8px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:var(--muted)">+ Novo usuário</button>
-    </div>
-    <div id="aform-login">
-      <input id="l-email" type="email" placeholder="Email" autocomplete="username" style="width:100%;padding:10px 12px;background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:10px;outline:none">
-      <input id="l-pass" type="password" placeholder="Senha" autocomplete="current-password" style="width:100%;padding:10px 12px;background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:10px;outline:none">
-      <div id="l-err" style="color:#e74c3c;font-size:12px;margin-bottom:8px;display:none"></div>
-      <button onclick="doLogin()" style="width:100%;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Entrar</button>
-    </div>
-    <div id="aform-register" style="display:none">
-      <input id="r-nome" type="text" placeholder="Nome completo" style="width:100%;padding:10px 12px;background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:10px;outline:none">
-      <input id="r-email" type="email" placeholder="Email" style="width:100%;padding:10px 12px;background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:10px;outline:none">
-      <input id="r-pass" type="password" placeholder="Senha inicial" style="width:100%;padding:10px 12px;background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:10px;outline:none">
-      <select id="r-role" style="width:100%;padding:10px 12px;background:var(--surf2);border:1px solid var(--bdr);border-radius:8px;color:var(--text);font-size:13px;margin-bottom:10px;outline:none">
-        <option value="viewer">Visualizador</option>
-        <option value="admin">Administrador</option>
-      </select>
-      <div id="r-err" style="color:#e74c3c;font-size:12px;margin-bottom:8px;display:none"></div>
-      <button onclick="doRegister()" style="width:100%;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Cadastrar</button>
-    </div>
-  </div>
-</div>
+    
+    
+      Email
+      Senha
+      Entrar
+      
+    
 
-<!-- APP -->
-<div id="app" style="min-height:100vh;padding-bottom:80px">
-  <header class="topbar">
-    <div class="tlogo"><span style="font-weight:700;font-size:14px">Salim &amp; Salim</span><small>Gestão de Clientes</small></div>
-    <div id="conn-status" class="conn-status"><span class="conn-dot"></span><span class="conn-label">🟢 Online</span></div>
-    <div id="update-status" style="font-size:11px;color:var(--muted)"></div>
-    <nav class="tnav">
-      <div class="tnav-btn active" id="tnav-cli" data-s="clientes" onclick="showSec('clientes')">Clientes</div>
-      <div class="tnav-btn" id="tnav-log" data-s="log" onclick="showSec('log')" style="display:none">Log de Acessos</div>
-      <div class="tnav-btn" id="tnav-users" data-s="usuarios" onclick="showSec('usuarios')" style="display:none">Usuários</div>
-      <div class="tnav-btn" id="tnav-lotes" data-s="lotes" onclick="showSec('lotes')" style="display:none">📎 Lotes</div>
-    </nav>
-    <div class="tusr">
-      <span id="cur-nome" style="font-size:12px;color:var(--muted)">Olá,</span>
-      <span id="cur-role-badge" class="trole">—</span>
-      <button onclick="doLogout()" class="btn btn-gh btn-xs">Sair</button>
-    </div>
-  </header>
-  <main class="content">
-    <div id="sec-clientes" class="section on">
-      <div class="toolbar" id="toolbar-desktop">
-        <select id="f-mes" onchange="applyFilters()" class="sel"><option value="">Todos os meses</option><option>JANEIRO</option><option>FEVEREIRO</option><option>MARÇO</option><option>ABRIL</option><option>MAIO</option><option>JUNHO</option><option>JULHO</option><option>AGOSTO</option><option>SETEMBRO</option><option>OUTUBRO</option><option>NOVEMBRO</option><option>DEZEMBRO</option></select>
-        <select id="f-status-f" onchange="applyFilters()" class="sel"><option value="">Todos status</option><option value="ativo">Ativo</option><option value="cancelado">Cancelado</option><option value="pendente">Pendente</option></select>
-        <select id="f-sort" onchange="applyFilters()" class="sel"><option value="nome">Ordenar: Nome</option><option value="mes">Mês Pgto</option><option value="valor">Valor</option><option value="recebimento">Recebimento</option><option value="vencimento">Vencimento</option><option value="data_inicio">Data Início</option></select>
-        <input id="srch" type="search" placeholder="🔍 Buscar cliente..." oninput="applyFilters()" class="srch-inp">
-        <button id="btn-publicar" class="btn btn-acc btn-xs admin-only" onclick="publicarSistema()" style="display:none">🚀 Publicar</button>
-      </div>
-      <div id="mobile-filters" class="mobile-filters" style="display:none">
-        <select id="f-mes-m" onchange="syncFilters('mes',this.value)" class="sel"><option value="">Todos os meses</option><option>JANEIRO</option><option>FEVEREIRO</option><option>MARÇO</option><option>ABRIL</option><option>MAIO</option><option>JUNHO</option><option>JULHO</option><option>AGOSTO</option><option>SETEMBRO</option><option>OUTUBRO</option><option>NOVEMBRO</option><option>DEZEMBRO</option></select>
-        <select id="f-status-m" onchange="syncFilters('status',this.value)" class="sel"><option value="">Todos status</option><option value="ativo">Ativo</option><option value="cancelado">Cancelado</option><option value="pendente">Pendente</option></select>
-        <select id="f-sort-m" onchange="syncFilters('sort',this.value)" class="sel"><option value="nome">Nome</option><option value="mes">Mês</option><option value="valor">Valor</option></select>
-        <input id="f-srch-m" type="search" placeholder="Buscar..." oninput="syncFilters('srch',this.value)" class="srch-inp">
-      </div>
-      <div class="stats-row">
-        <div class="stat-card" onclick="setStatusFilter('')"><div id="ct-todos" class="stat-n">—</div><div class="stat-l">Total</div></div>
-        <div class="stat-card act" onclick="setStatusFilter('ativo')"><div id="ct-ativos" class="stat-n">—</div><div class="stat-l">Ativos</div></div>
-        <div class="stat-card can" onclick="setStatusFilter('cancelado')"><div id="ct-cancelados" class="stat-n">—</div><div class="stat-l">Cancelados</div></div>
-        <div class="stat-card pen" onclick="setStatusFilter('pendente')"><div id="ct-pendentes" class="stat-n">—</div><div class="stat-l">Pendentes</div></div>
-      </div>
-      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Cliente</th><th>Mês Pgto</th><th>Valor</th><th>Recebimento</th><th>Vencimento</th><th>Data Início</th><th>Status</th><th>Observações</th><th>Ações</th></tr></thead><tbody id="tbody"></tbody></table></div>
-      <div id="cli-cards" class="cli-cards"></div>
-      <div class="totals-row">
-        <span>Exibindo: <b id="tot-n">—</b></span>
-        <span>Faturamento (ativos/pendentes): <b id="tot-ap">—</b></span>
-        <span>Total geral: <b id="tot-g">—</b></span>
-      </div>
-      <div class="status-tabs">
-        <button class="stab active" id="st-tot" onclick="setStatusFilter('')">Todos</button>
-        <button class="stab act" id="st-act" onclick="setStatusFilter('ativo')">Ativos</button>
-        <button class="stab can" id="st-can" onclick="setStatusFilter('cancelado')">Cancelados</button>
-        <button class="stab pen" id="st-pen" onclick="setStatusFilter('pendente')">Pendentes</button>
-      </div>
-    </div>
-    <div id="sec-log" class="section">
-      <div class="sec-hdr"><h2>📋 Log de Acessos</h2></div>
-      <input id="log-srch" type="search" placeholder="Filtrar log..." oninput="filterLog()" class="srch-inp" style="margin-bottom:12px;width:100%">
-      <div class="tbl-wrap"><table class="tbl"><thead><tr><th>Data</th><th>Usuário</th><th>Ação</th><th>Detalhe</th></tr></thead><tbody id="log-body"></tbody></table></div>
-    </div>
-    <div id="sec-usuarios" class="section">
-      <div class="sec-hdr"><h2>👥 Usuários</h2><button class="btn btn-acc btn-xs" onclick="renderRolesCheckboxes('nu-roles',['viewer']);openOv('ov-novo-user')">&#xFF0B; Cadastrar</button></div>
-      <div id="users-list"></div>
-    </div>
-    <div id="sec-lotes" class="section">
-      <div class="sec-hdr"><h2>📎 Comprovantes &amp; Lotes</h2><button class="btn btn-acc btn-xs" id="btn-novo-lote" onclick="openNovoLote()" style="display:none">+ Enviar</button></div>
-      <div id="lotes-list"></div>
-    </div>
-  </main>
-</div>
+    
+    
+      Nome completo
+      Email
+      Senha inicial
+      Perfil de acesso
+        
+          Visualizador — só registra pagamentos
+          Administrador — acesso total
+        
+      
+      Cadastrar usuário
+      
+    
+  
 
-<!-- POPUP VENCIMENTOS -->
-<div id="popup-venc" class="ov" onclick="ovClick(event,'popup-venc')" style="display:none">
-  <div class="modal" style="max-width:480px">
-    <div class="mhdr"><h2>⚠️ Vencimentos este mês</h2><button class="mclose" onclick="closeOv('popup-venc')">✕</button></div>
-    <div class="mbody" id="popup-venc-body"></div>
-    <div class="mfoot"><button class="btn btn-gh btn-xs" onclick="closeOv('popup-venc')">Fechar</button></div>
-  </div>
-</div>
 
-<!-- MODAIS -->
-<div class="ov" id="ov-cli" onclick="ovClick(event,'ov-cli')">
-  <div class="modal"><div class="mhdr"><h2 id="mtitle">Novo cliente</h2><button class="mclose" onclick="closeOv('ov-cli')">✕</button></div>
-  <div class="mbody">
-    <label class="flabel">Nome do cliente *</label><input id="f-nome" type="text" placeholder="Nome" class="finp">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      <div><label class="flabel">Mês de Pagamento</label><select id="f-mes-c" class="finp"><option value="">—</option><option>JANEIRO</option><option>FEVEREIRO</option><option>MARÇO</option><option>ABRIL</option><option>MAIO</option><option>JUNHO</option><option>JULHO</option><option>AGOSTO</option><option>SETEMBRO</option><option>OUTUBRO</option><option>NOVEMBRO</option><option>DEZEMBRO</option></select></div>
-      <div><label class="flabel">Valor (R$)</label><input id="f-valor" type="number" step="0.01" class="finp"></div>
-      <div><label class="flabel">Pago Em</label><input id="f-pago" type="date" class="finp"></div>
-      <div><label class="flabel">Vencimento (MM/AAAA)</label><input id="f-vencimento" type="text" placeholder="MM/AAAA" class="finp"></div>
-      <div><label class="flabel">Data Início</label><input id="f-data" type="date" class="finp" onchange="calcVencimento()"></div>
-      <div><label class="flabel">Status</label><select id="f-status" class="finp"><option value="ativo">Ativo</option><option value="cancelado">Cancelado</option><option value="pendente">Pendente</option></select></div>
-    </div>
-    <label class="flabel" id="fg-obs-admin">Obs. Admin</label><textarea id="f-obs-admin" rows="2" class="finp"></textarea>
-    <label class="flabel" id="fg-obs-viewer">Obs. Viewer</label><textarea id="f-obs-viewer" rows="2" class="finp"></textarea>
-  </div>
-  <div class="mfoot"><button class="btn btn-gh btn-xs" onclick="closeOv('ov-cli')">Cancelar</button><button class="btn btn-acc btn-xs" onclick="saveCli()">Salvar</button></div></div>
-</div>
 
-<div class="ov" id="ov-pago" onclick="ovClick(event,'ov-pago')">
-  <div class="modal" style="max-width:380px"><div class="mhdr"><h2>💳 Registrar Pagamento</h2><button class="mclose" onclick="closeOv('ov-pago')">✕</button></div>
-  <div class="mbody"><div id="pago-nome" style="font-weight:600;margin-bottom:12px"></div><label class="flabel">Data do pagamento</label><input id="pago-data" type="date" class="finp"><label class="flabel">Valor pago (R$)</label><input id="pago-val" type="number" step="0.01" class="finp"></div>
-  <div class="mfoot"><button class="btn btn-gh btn-xs" onclick="closeOv('ov-pago')">Cancelar</button><button class="btn btn-acc btn-xs" onclick="savePago()">Confirmar</button></div></div>
-</div>
 
-<div class="ov" id="ov-hist" onclick="ovClick(event,'ov-hist')">
-  <div class="modal" style="max-width:600px"><div class="mhdr"><h2 id="hist-title">Histórico</h2><button class="mclose" onclick="closeOv('ov-hist')">✕</button></div>
-  <div class="mbody"><div class="tbl-wrap"><table class="tbl"><thead><tr><th>Data</th><th>Campo</th><th>Anterior</th><th>Novo</th><th>Por</th></tr></thead><tbody id="hist-body"></tbody></table></div></div>
-  <div class="mfoot"><button class="btn btn-gh btn-xs" onclick="closeOv('ov-hist')">Fechar</button></div></div>
-</div>
 
-<div class="ov" id="ov-del" onclick="ovClick(event,'ov-del')">
-  <div class="modal" style="max-width:360px"><div class="mhdr"><h2>🗑️ Confirmar Exclusão</h2><button class="mclose" onclick="closeOv('ov-del')">✕</button></div>
-  <div class="mbody"><p>Excluir <b id="del-nome"></b>? Esta ação não pode ser desfeita.</p></div>
-  <div class="mfoot"><button class="btn btn-gh btn-xs" onclick="closeOv('ov-del')">Cancelar</button><button class="btn btn-red btn-xs" onclick="confirmDel()">Excluir</button></div></div>
-</div>
+  
+  
+    
+      Salim &amp; Salim Gestão de Clientes
+      🟢 Online
+      
+        Clientes
+        Log de Acessos
+        Usuários
+        📎 Lotes
+      
+    
+    
+      Olá, 
+      Sair
+    
+  
 
-<div class="ov" id="ov-novo-user" onclick="ovClick(event,'ov-novo-user')">
-  <div class="modal" style="max-width:440px"><div class="mhdr"><h2>👤 Cadastrar Usuário</h2><button class="mclose" onclick="closeOv('ov-novo-user')">✕</button></div>
-  <div class="mbody">
-    <input id="nu-nome" type="text" placeholder="Nome completo" class="finp">
-    <input id="nu-email" type="email" placeholder="Email" class="finp">
-    <input id="nu-pass" type="password" placeholder="Senha" class="finp">
-    <input id="nu-role" type="hidden" value="viewer">
-    <div id="nu-roles"></div>
-    <div id="perm-section" style="display:none"><label class="flabel">Campos que pode alterar:</label><div class="perm-grid"><label class="perm-opt"><input type="checkbox" id="perm-pago_em"> Data pagamento</label><label class="perm-opt"><input type="checkbox" id="perm-valor"> Valor</label><label class="perm-opt"><input type="checkbox" id="perm-obs"> Obs viewer</label><label class="perm-opt"><input type="checkbox" id="perm-status"> Status</label><label class="perm-opt"><input type="checkbox" id="perm-mes_pagamento"> Mês pgto</label><label class="perm-opt"><input type="checkbox" id="perm-data_inicio"> Data início</label></div></div>
-    <div id="nu-err" style="color:#e74c3c;font-size:12px;display:none;margin-top:8px"></div>
-  </div>
-  <div class="mfoot"><button class="btn btn-gh btn-xs" onclick="closeOv('ov-novo-user')">Cancelar</button><button class="btn btn-acc btn-xs" onclick="doNovoUser()">Cadastrar</button></div></div>
-</div>
+  
+  
+    🔄 Verificando versão...
+    
+  
 
-<div class="ov" id="ov-edit-user" onclick="ovClick(event,'ov-edit-user')">
-  <div class="modal" style="max-width:440px"><div class="mhdr"><h2 id="eu-title">Editar Usuário</h2><button class="mclose" onclick="closeOv('ov-edit-user')">✕</button></div>
-  <div class="mbody">
-    <input id="eu-id" type="hidden">
-    <input id="eu-nome" type="text" placeholder="Nome" class="finp">
-    <input id="eu-email" type="email" placeholder="Email" class="finp">
-    <input id="eu-pass" type="password" placeholder="Nova senha (deixe em branco para manter)" class="finp">
-    <div id="eu-role-row"><label class="flabel">Perfil</label><select id="eu-role" class="finp"><option value="viewer">Visualizador</option><option value="pagador">Pagador</option><option value="baixador">Baixador</option><option value="admin">Administrador</option></select></div>
-    <div id="eu-roles" style="margin-bottom:10px"></div>
-    <div id="eu-perm-section" style="display:none"><label class="flabel">Campos que pode alterar:</label><div class="perm-grid"><label class="perm-opt"><input type="checkbox" id="eu-perm-pago_em"> Data pagamento</label><label class="perm-opt"><input type="checkbox" id="eu-perm-valor"> Valor</label><label class="perm-opt"><input type="checkbox" id="eu-perm-obs"> Obs viewer</label><label class="perm-opt"><input type="checkbox" id="eu-perm-status"> Status</label><label class="perm-opt"><input type="checkbox" id="eu-perm-mes_pagamento"> Mês pgto</label><label class="perm-opt"><input type="checkbox" id="eu-perm-data_inicio"> Data início</label></div></div>
-    <div id="eu-err" style="color:#e74c3c;font-size:12px;display:none;margin-top:8px"></div>
-  </div>
-  <div class="mfoot"><button class="btn btn-gh btn-xs" onclick="closeOv('ov-edit-user')">Cancelar</button><button class="btn btn-acc btn-xs" onclick="saveEditUser()">Salvar</button></div></div>
-</div>
+  
+  
+    
+      &#x1F4CB;Clientes
+      &#x1F4C4;Log
+      &#x1F465;Usuários
+      📎Lotes
+      &#x1F6AA;Sair
+    
+  
 
-<div class="ov" id="ov-cred" onclick="ovClick(event,'ov-cred')">
-  <div class="modal" style="max-width:400px"><div class="mhdr"><h2>🔐 Minhas Credenciais</h2><button class="mclose" onclick="closeOv('ov-cred')">✕</button></div>
-  <div class="mbody"><div class="cred-row"><span class="cred-label">Nome</span><span id="cred-nome" class="cred-val"></span></div><div class="cred-row"><span class="cred-label">Email</span><span id="cred-email" class="cred-val"></span></div><div class="cred-row"><span class="cred-label">Senha</span><span id="cred-senha" class="cred-val"></span></div><div class="cred-row"><span class="cred-label">Perfil</span><span id="cred-role" class="cred-val"></span></div><div id="cred-perms" style="margin-top:12px;font-size:12px;color:var(--muted)"></div></div>
-  <div class="mfoot"><button class="btn btn-gh btn-xs" onclick="closeOv('ov-cred')">Fechar</button></div></div>
-</div>
+  
+  ＋
 
-<div class="ov" id="ov-novo-lote" onclick="ovClick(event,'ov-novo-lote')">
-  <div class="modal" style="max-width:520px"><div class="mhdr"><h2>📎 Enviar Comprovante</h2><button class="mclose" onclick="closeOv('ov-novo-lote')">✕</button></div>
-  <div class="mbody">
-    <div style="font-size:11px;color:var(--muted);margin-bottom:8px">Clientes com vencimento este mês</div>
-    <div class="cli-check-list" id="lote-clientes-lista"></div>
-    <div style="margin-top:16px;font-size:11px;color:var(--muted);margin-bottom:8px">Comprovante(s)</div>
-    <div class="upload-area" id="lote-upload-area" onclick="document.getElementById('lote-file-input').click()">📎 Toque aqui para anexar (JPG/PNG)</div>
-    <input type="file" id="lote-file-input" accept="image/jpeg,image/png" multiple style="display:none" onchange="handleLoteUpload(this)">
-    <div id="lote-preview-area" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"></div>
-  </div>
-  <div class="mfoot"><button class="btn btn-gh btn-xs" onclick="closeOv('ov-novo-lote')">Cancelar</button><button class="btn btn-acc btn-xs" id="btn-salvar-lote" onclick="salvarLote()">📤 Enviar Lote</button></div></div>
-</div>
+  
+  
+    Todos os meses
+    
+      Todos status
+      Ativo
+      Cancelado
+      Pendente
+    
+    
+      Nome
+      Mês
+      Valor
+      Recebimento
+      Vencimento
+      Data Início
+    
+  
 
-<div class="ov" id="ov-baixa-parcial" onclick="ovClick(event,'ov-baixa-parcial')">
-  <div class="modal" style="max-width:420px"><div class="mhdr"><h2>📝 Baixa Parcial</h2><button class="mclose" onclick="closeOv('ov-baixa-parcial')">✕</button></div>
-  <div class="mbody"><div style="font-size:12px;color:var(--muted);margin-bottom:12px">Selecione os clientes para dar baixa:</div><div class="cli-check-list" id="baixa-clientes-lista"></div></div>
-  <div class="mfoot"><button class="btn btn-gh btn-xs" onclick="closeOv('ov-baixa-parcial')">Cancelar</button><button class="btn btn-acc btn-xs" id="btn-confirm-baixa-parcial">✅ Confirmar Baixa</button></div></div>
-</div>
+  
+  
+    0Total
+    0Ativos
+    0Cancelados
+    0Pendentes
+  
 
-<button id="fab-novo" class="fab admin-only" onclick="openCli()" style="display:none">+</button>
+  
+  
+    🔍
+    Todos os meses
+    
+      Todos os status
+      Ativo
+      Cancelado
+      Pendente
+    
+    
+      Ordenar: Nome
+      Ordenar: Mês Pgto
+      Ordenar: Valor
+      Ordenar: Recebimento
+      Ordenar: Vencimento
+      Ordenar: Data de Início
+      Ordenar: Status
+    
+    
+    ✕ Limpar
+    ＋ Novo cliente
+    ⬇ Baixar Excel
+    &#x1F4E4; Backup
+    🚀 Publicar
+    &#x1F4E5; Importar
+    ↺ Restaurar
+  
 
-<nav class="bnav">
-  <button class="bnav-btn active" id="bnav-cli" onclick="showSec('clientes')"><span class="bico">📋</span>Clientes</button>
-  <button class="bnav-btn" id="bnav-log" onclick="showSec('log')" style="display:none"><span class="bico">📄</span>Log</button>
-  <button class="bnav-btn" id="bnav-usuarios" onclick="showSec('usuarios')" style="display:none"><span class="bico">👥</span>Usuários</button>
-  <button class="bnav-btn" id="bnav-lotes" onclick="showSec('lotes')" style="display:none"><span class="bico">📎</span>Lotes</button>
-  <button class="bnav-btn" onclick="doLogout()"><span class="bico">🚪</span>Sair</button>
-</nav>
+  
+  
+    Todos 0
+    ✅ Ativos 0
+    🔴 Cancelados 0
+    ⏳ Pendentes 0
+  
 
-<div id="pwa-banner" style="display:none;position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:var(--surf);border:1px solid var(--bdr);border-radius:12px;padding:12px 16px;z-index:8000;box-shadow:0 4px 20px rgba(0,0,0,.3);max-width:320px;width:90%">
-  <div style="display:flex;align-items:center;gap:10px">
-    <span style="font-size:1.5rem">📊</span>
-    <div style="flex:1"><div style="font-weight:600;font-size:13px">Salim &amp; Salim</div><div style="font-size:11px;color:var(--muted)">Adicione à tela inicial para acesso rápido</div></div>
-    <div style="display:flex;gap:6px">
-      <button onclick="dismissPWA()" style="padding:6px 10px;border:1px solid var(--bdr);background:transparent;color:var(--muted);border-radius:6px;font-size:12px;cursor:pointer">Agora não</button>
-      <button onclick="installPWA()" style="padding:6px 10px;background:var(--accent);color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:600">Instalar</button>
-    </div>
-  </div>
-</div>
+  
+  
 
+    
+    
+      
+        
+          
+            
+              Cliente 
+              Mês Pgto 
+              Data Início 
+              Recebimento 
+              Vencimento 
+              Valor 
+              Status 
+              Observações
+              Ações
+            
+          
+          
+        
+      
+      
+      
+      
+        Exibindo: 0
+        Faturamento (ativos/pendentes): —
+        Total geral: —
+      
+    
+
+    
+    
+      
+        Log de Acessos e Alterações
+        ↻ Atualizar
+      
+      
+        🔍
+        ⬇ Exportar log
+      
+      
+    
+
+    
+    
+      
+        Usuários com Acesso
+        <button class="btn btn-acc btn-xs" onclick="renderRolesCheckboxes('nu-roles',['viewer']);openOv('ov-novo-user')">&#xFF0B; Cadastrar Usuário</button>
+      
+      
+
+
+    
+
+  
+
+  
+
+
+
+
+
+
+  
+    <!-- SEÇÃO LOTES -->
+    <div id="sec-lotes" class="section" style="display:none"><div class="sec-hdr"><h2>📎 Comprovantes & Lotes</h2><button class="btn btn-acc btn-xs" id="btn-novo-lote" onclick="openNovoLote()" style="display:none">+ Enviar Comprovante</button></div><div id="lotes-list"></div></div>
+    
+
+    <!-- MODAL NOVO LOTE -->
+<div class="ov" id="ov-novo-lote" onclick="ovClick(event,'ov-novo-lote')"><div class="modal" style="max-width:520px"><div class="mhdr"><h2>📎 Enviar Comprovante</h2><button class="mclose" onclick="closeOv('ov-novo-lote')">✕</button></div><div class="mbody"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Clientes com vencimento este mês</div><div class="cli-check-list" id="lote-clientes-lista"></div><div style="margin-top:16px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Comprovante(s)</div><div class="upload-area" id="lote-upload-area" onclick="document.getElementById('lote-file-input').click()">📎 Toque aqui para anexar comprovante(s) (JPG/PNG)</div><input type="file" id="lote-file-input" accept="image/jpeg,image/png" multiple style="display:none" onchange="handleLoteUpload(this)"><div id="lote-preview-area" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"></div></div><div class="mfoot"><button class="btn btn-gh btn-xs" onclick="closeOv('ov-novo-lote')">Cancelar</button><button class="btn btn-acc btn-xs" id="btn-salvar-lote" onclick="salvarLote()">📤 Enviar Lote</button></div></div></div>
+
+    <!-- MODAL BAIXA PARCIAL -->
+<div class="ov" id="ov-baixa-parcial" onclick="ovClick(event,'ov-baixa-parcial')"><div class="modal" style="max-width:420px"><div class="mhdr"><h2>📝 Baixa Parcial</h2><button class="mclose" onclick="closeOv('ov-baixa-parcial')">✕</button></div><div class="mbody"><div style="font-size:12px;color:var(--muted);margin-bottom:12px">Selecione os clientes para dar baixa:</div><div class="cli-check-list" id="baixa-clientes-lista"></div></div><div class="mfoot"><button class="btn btn-gh btn-xs" onclick="closeOv('ov-baixa-parcial')">Cancelar</button><button class="btn btn-acc btn-xs" id="btn-confirm-baixa-parcial">✅ Confirmar Baixa</button></div></div></div>
+
+
+  
+    Novo cliente✕
+    
+      Nome do cliente *
+      
+        Mês de Pagamento
+          
+            —
+            JANEIROFEVEREIROMARÇO
+            ABRILMAIOJUNHO
+            JULHOAGOSTOSETEMBRO
+            OUTUBRONOVEMBRODEZEMBRO
+            FEVEREIRO/MARÇO
+          
+        
+        Valor (R$)
+      
+      
+        Data de Início
+        Data de Recebimento
+      
+      📅 Mês/Ano de Vencimento (gerado automaticamente)
+      Status
+        
+          ✅ Ativo
+          🔴 Cancelado
+          ⏳ Pendente
+        
+      
+      Observações (Admin)
+      Observações
+        
+        
+        💡 Observações do admin são protegidas. Você pode adicionar observações abaixo.
+      
+    
+    
+      Cancelar
+      💾 Salvar cliente
+    
+  
+
+
+
+
+  
+    Registrar Pagamento✕
+    
+      
+      Data de Recebimento *
+      Valor pago (R$)
+      
+        💡 O valor e data anteriores serão guardados no histórico automaticamente.
+      
+    
+    
+      Cancelar
+      ✔ Confirmar pagamento
+    
+  
+
+
+
+
+  
+    Histórico✕
+    
+  
+
+
+
+
+  
+    ✕
+    
+      🗑️
+      Excluir cliente
+      
+      Esta ação é permanente e não pode ser desfeita.
+    
+    
+      Cancelar
+      Sim, excluir
+    
+  
+
+
+
+
+
+  
+    
+      Cadastrar Usu&#225;rio
+      &#x2715;
+    
+    
+      
+        Nome completo *
+        Email (login) *
+      
+      
+        Senha *
+        Perfil base
+          
+            Visualizador (acesso limitado)
+            Pagador (envia comprovantes)
+            Baixador (confirma pagamentos)
+            Administrador (acesso total)
+        <div id="nu-roles"></div>
+          
+        
+      
+      
+        Campos que este usu&#225;rio pode alterar:
+        
+          &#x1F4C5; Pago Em
+          &#x1F4B0; Valor
+          &#x1F4DD; Observa&#231;&#245;es
+          &#x1F6A6; Status
+          &#x1F4C6; M&#234;s Pgto
+          &#x1F4C4; Data In&#237;cio
+        
+      
+      
+        &#128161; O usu&#225;rio entra com o email e senha que voc&#234; definiu. Somente os campos marcados poder&#227;o ser alterados por ele.
+      
+      
+    
+    
+      Cancelar
+      &#x2714; Cadastrar usu&#225;rio
+    
+  
+
+
+
+
+  
+    
+      Editar Usuário
+      &#x2715;
+    
+    
+      
+      Nome completo *
+      Email (login) *
+      
+        Nova senha (deixe em branco para manter a atual)
+        
+      
+      
+        Perfil de acesso
+        
+          Visualizador (acesso limitado)
+          Administrador (acesso total)
+        
+      
+      
+        <div id="eu-roles" style="margin-bottom:10px"></div>
+        Campos que pode alterar:
+        
+          &#x1F4C5; Pago Em
+          &#x1F4B0; Valor
+          &#x1F4DD; Observa&#231;&#245;es
+          &#x1F6A6; Status
+          &#x1F4C6; M&#234;s Pgto
+          &#x1F4C4; Data In&#237;cio
+        
+      
+      
+        &#128161; Se alterar o email ou senha, o usuário precisará usar as novas credenciais no próximo acesso.
+      
+      
+    
+    
+      Cancelar
+      &#x1F4BE; Salvar alterações
+    
+  
+
+
+
+
+  
+    
+      &#x2705; Usuário cadastrado!
+      &#x2715;
+    
+    
+      
+        Anote ou copie as credenciais abaixo e repasse para o usuário. Ele precisará usar esses dados para entrar no sistema.
+      
+      
+        Nome
+        Email (login)
+        Senha
+        Perfil
+        Campos liberados
+      
+      
+        &#x2705; Sincronização automática: Basta enviar o arquivo salim_v_final.html para o usuário. Ao abrir, ele entra com o email e senha cadastrados e os dados já estarão atualizados automaticamente via Firebase — sem precisar importar nada.
+      
+    
+    
+      Fechar
+
+    
+  
+
+
+
+
+
+// ══════════════════════════════════════════════════════
+// DADOS ORIGINAIS
+// ══════════════════════════════════════════════════════
 <script>
 
 const SEED=[
@@ -1429,7 +1588,7 @@ function populateMeses(){
 function getFiltered(cli){
   const q=document.getElementById('srch').value.toLowerCase();
   const mes=(document.getElementById('f-mes').value||'').toUpperCase();
-  const st=(document.getElementById('f-status-f')||document.getElementById('f-status-filt')||{value:''}).value;
+  const st=document.getElementById('f-status').value;
   return cli.filter(c=>{
     if(curTab==='ativos'&&c.status!=='ativo')return false;
     if(curTab==='cancelados'&&c.status!=='cancelado')return false;
@@ -1519,27 +1678,25 @@ function renderTable(){
     const pc=c.status==='ativo'?'pill-act':c.status==='cancelado'?'pill-can':'pill-pen';
     const pl=c.status==='ativo'?'Ativo':c.status==='cancelado'?'Cancelado':'Pendente';
     const nc=c.status==='cancelado'?'td-name cancel':c.status==='pendente'?'td-name pend':'td-name';
+    const obsText=(c.obs_admin&&isA?'[A] '+c.obs_admin+' ':'')+((c.obs_viewer||c.obs)||'');
     const btns=isA
-      ?`
-          ✏️
-          📅
-          🗑️
-        `
-      :`
-          💳
-          📅
-        `;
-    return`
-      ${c.cliente||''}
-      ${(c.mes_pagamento||'').toUpperCase()||'—'}
-      ${fD(c.data_inicio)}
-      ${fD(c.pago_em)}
-      ${c.vencimento||'—'}
-      ${pV(c.valor)?fV(pV(c.valor)):'—'}
-      ${pl}
-      ${c.obs||''}
-      ${btns}
-    `;
+      ?`<button class="act-btn" onclick="openCli('${c.id}')" title="Editar">✏️</button>
+          <button class="act-btn" onclick="openPago('${c.id}')" title="Pagamento">💳</button>
+          <button class="act-btn" onclick="openHist('${c.id}')" title="Histórico">📅</button>
+          <button class="act-btn del" onclick="delCli('${c.id}')" title="Excluir">🗑️</button>`
+      :`<button class="act-btn" onclick="openPago('${c.id}')" title="Pagamento">💳</button>
+          <button class="act-btn" onclick="openHist('${c.id}')" title="Histórico">📅</button>`;
+    return`<tr class="${c.status==='cancelado'?'tr-can':c.status==='pendente'?'tr-pen':''}">
+      <td class="${nc}">${c.cliente||''}</td>
+      <td>${(c.mes_pagamento||'').toUpperCase()||'—'}</td>
+      <td>${pV(c.valor)?fV(pV(c.valor)):'—'}</td>
+      <td>${fD(c.pago_em)||'—'}</td>
+      <td>${c.vencimento||'—'}</td>
+      <td>${fD(c.data_inicio)||'—'}</td>
+      <td><span class="pill ${pc}">${pl}</span></td>
+      <td class="td-obs">${obsText}</td>
+      <td class="td-acts">${btns}</td>
+    </tr>`;
   }).join('');
 }
 
@@ -1849,10 +2006,7 @@ function renderCards(filtered){
   if(!cards)return;
   const isA=CU?.role==='admin';
   if(!filtered.length){
-    cards.innerHTML=`
-      🔍
-      Nenhum cliente encontrado.
-    `;
+    cards.innerHTML=`<div style="padding:32px;text-align:center;color:var(--muted)"><div style="font-size:2rem;margin-bottom:8px">🔍</div><div>Nenhum cliente encontrado.</div></div>`;
     return;
   }
   cards.innerHTML=filtered.map(c=>{
@@ -1860,27 +2014,27 @@ function renderCards(filtered){
     const nc=c.status==='cancelado'?'cancel':c.status==='pendente'?'pend':'';
     const pc=c.status==='ativo'?'pill-act':c.status==='cancelado'?'pill-can':'pill-pen';
     const pl=c.status==='ativo'?'✅ Ativo':c.status==='cancelado'?'🔴 Cancelado':'⏳ Pendente';
-    const obsHtml=c.obs?`${c.obs}`:'';
-    const adminBtns=isA?`
-      ✏️ Editar
-      📅 Histórico
-      🗑️`
-    :`💳 Registrar Pgto
-      📅 Histórico`;
-    return`
-      
-        ${c.cliente||''}
-        ${pl}
-      
-      
-        Mês Pgto${(c.mes_pagamento||'').toUpperCase()||'—'}
-        Valor${pV(c.valor)?fV(pV(c.valor)):'—'}
-        Recebimento${fD(c.pago_em)}
-        Vencimento${c.vencimento||'—'}
-      
+    const obsHtml=c.obs?`<div class="cc-obs">${c.obs}</div>`:'';
+    const adminBtns=isA
+      ?`<button class="cc-btn primary" onclick="openCli('${c.id}')">✏️ Editar</button>
+        <button class="cc-btn" onclick="openHist('${c.id}')">📅 Histórico</button>
+        <button class="cc-btn danger" onclick="delCli('${c.id}')">🗑️</button>`
+      :`<button class="cc-btn primary" onclick="openPago('${c.id}')">💳 Registrar Pgto</button>
+        <button class="cc-btn" onclick="openHist('${c.id}')">📅 Histórico</button>`;
+    return`<div class="cli-card ${sc}">
+      <div class="cc-top">
+        <div class="cc-nome ${nc}">${c.cliente||''}</div>
+        <span class="pill ${pc}">${pl}</span>
+      </div>
+      <div class="cc-grid">
+        <div class="cc-field"><span class="cc-label">Mês Pgto</span><span class="cc-value">${(c.mes_pagamento||'').toUpperCase()||'—'}</span></div>
+        <div class="cc-field"><span class="cc-label">Valor</span><span class="cc-value val">${pV(c.valor)?fV(pV(c.valor)):'—'}</span></div>
+        <div class="cc-field"><span class="cc-label">Recebimento</span><span class="cc-value">${fD(c.pago_em)||'—'}</span></div>
+        <div class="cc-field"><span class="cc-label">Vencimento</span><span class="cc-value">${c.vencimento||'—'}</span></div>
+      </div>
       ${obsHtml}
-      ${adminBtns}
-    `;
+      <div class="cc-actions">${adminBtns}</div>
+    </div>`;
   }).join('');
 }
 
@@ -1899,7 +2053,7 @@ function syncMobileFilters(){
 }
 
 function updateMobileNav(s){
-  ['clientes','log','usuarios','lotes'].forEach(x=>{
+  ['clientes','log','usuarios'].forEach(x=>{
     const el=document.getElementById('bnav-'+x);
     if(el)el.classList.toggle('on',x===s);
   });
@@ -1924,12 +2078,12 @@ async function renderLog(){
   const body=document.getElementById('log-body');
   if(!logs.length){body.innerHTML=`Nenhum registro encontrado.`;return;}
   body.innerHTML=logs.map(l=>{
-    const rp=l.role==='admin'?`admin`:`(viewer)`;
-    return`
-      ${new Date(l.ts).toLocaleString('pt-BR')}
-      ${l.nome}${rp}
-      ${l.acao}${l.det?' — '+l.det:''}
-    `;
+    const rp=l.role==='admin'?`<span class="pill pill-acc" style="font-size:10px">admin</span>`:`<span style="font-size:10px;color:var(--muted)">(viewer)</span>`;
+    return`<tr>
+      <td style="font-size:12px;white-space:nowrap">${new Date(l.ts).toLocaleString('pt-BR')}</td>
+      <td>${l.nome} ${rp}</td>
+      <td>${l.acao}${l.det?' — <span style="color:var(--muted)">'+l.det+'</span>':''}</td>
+    </tr>`;
   }).join('');
 }
 
@@ -2244,9 +2398,8 @@ async function testWpp(){
 
 // ── SECTIONS ──
 async function showSec(s){
-  ['clientes','log','usuarios','lotes'].forEach(x=>{
-    const _el=document.getElementById('sec-'+x);
-    if(_el)_el.classList.toggle('on',x===s);
+  ['clientes','log','usuarios'].forEach(x=>{
+    document.getElementById('sec-'+x).classList.toggle('on',x===s);
   });
   document.querySelectorAll('.tnav-btn').forEach(b=>b.classList.toggle('on',b.dataset.s===s));
   updateMobileNav(s);
@@ -2647,10 +2800,10 @@ function initLotes(){
 }
 
 </script>
-</script>
 <script>
 
 // ── PWA Install Prompt ──
+_deferredPrompt = null
 let _deferredPrompt = null;
 
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -2704,6 +2857,7 @@ if(isIOS() && !isInStandaloneMode() && !localStorage.getItem('pwa_dismissed')) {
 }
 
 // ── PWA Install Prompt ──
+_deferredPrompt = null;
 
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
@@ -2759,7 +2913,5 @@ if(isIOS() && !isInStandaloneMode() && !localStorage.getItem('pwa_dismissed')) {
 
 
 </script>
-</script>
 </body>
-
 </html>
