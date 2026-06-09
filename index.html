@@ -1579,7 +1579,9 @@ function checkVencimentosHoje(){
 
 // ── TABLE ──
 function populateMeses(){
-  const cli=getClientes(),sel=document.getElementById('f-mes'),cur=sel.value;
+  const cli=getClientes(),sel=document.getElementById('f-mes');
+  if(!sel)return;
+  const cur=sel.value;
   while(sel.options.length>1)sel.remove(1);
   [...new Set(cli.map(c=>(c.mes_pagamento||'').toUpperCase()).filter(Boolean))].sort((a,b)=>(MO[a]||99)-(MO[b]||99)).forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=m;sel.appendChild(o);});
   if(cur)sel.value=cur;
@@ -2058,7 +2060,7 @@ function syncMobileFilters(){
 }
 
 function updateMobileNav(s){
-  ['clientes','log','usuarios'].forEach(x=>{
+  ['clientes','log','usuarios','lotes'].forEach(x=>{
     const el=document.getElementById('bnav-'+x);
     if(el)el.classList.toggle('on',x===s);
   });
@@ -2403,8 +2405,9 @@ async function testWpp(){
 
 // ── SECTIONS ──
 async function showSec(s){
-  ['clientes','log','usuarios'].forEach(x=>{
-    document.getElementById('sec-'+x).classList.toggle('on',x===s);
+  ['clientes','log','usuarios','lotes'].forEach(x=>{
+    const _se=document.getElementById('sec-'+x);
+    if(_se)_se.classList.toggle('on',x===s);
   });
   document.querySelectorAll('.tnav-btn').forEach(b=>b.classList.toggle('on',b.dataset.s===s));
   updateMobileNav(s);
@@ -2414,8 +2417,8 @@ async function showSec(s){
 }
 
 // ── OVERLAYS ──
-function openOv(id){document.getElementById(id).classList.add('open');}
-function closeOv(id){document.getElementById(id).classList.remove('open');}
+function openOv(id){const _e=document.getElementById(id);if(_e)_e.classList.add('open');}
+function closeOv(id){const _e=document.getElementById(id);if(_e)_e.classList.remove('open');}
 function ovClick(e,id){if(e.target===document.getElementById(id))closeOv(id);}
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape')['ov-cli','ov-pago','ov-hist','ov-del','ov-novo-user','ov-edit-user','ov-cred','ov-novo-lote','ov-baixa-parcial'].forEach(closeOv);
@@ -2808,7 +2811,6 @@ function initLotes(){
 <script>
 
 // ── PWA Install Prompt ──
-_deferredPrompt = null
 let _deferredPrompt = null;
 
 window.addEventListener('beforeinstallprompt', (e) => {
