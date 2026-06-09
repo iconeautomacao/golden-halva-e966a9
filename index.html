@@ -1678,25 +1678,27 @@ function renderTable(){
     const pc=c.status==='ativo'?'pill-act':c.status==='cancelado'?'pill-can':'pill-pen';
     const pl=c.status==='ativo'?'Ativo':c.status==='cancelado'?'Cancelado':'Pendente';
     const nc=c.status==='cancelado'?'td-name cancel':c.status==='pendente'?'td-name pend':'td-name';
-    const obsText=(c.obs_admin&&isA?'[A] '+c.obs_admin+' ':'')+((c.obs_viewer||c.obs)||'');
     const btns=isA
-      ?`<button class="act-btn" onclick="openCli('${c.id}')" title="Editar">✏️</button>
-          <button class="act-btn" onclick="openPago('${c.id}')" title="Pagamento">💳</button>
-          <button class="act-btn" onclick="openHist('${c.id}')" title="Histórico">📅</button>
-          <button class="act-btn del" onclick="delCli('${c.id}')" title="Excluir">🗑️</button>`
-      :`<button class="act-btn" onclick="openPago('${c.id}')" title="Pagamento">💳</button>
-          <button class="act-btn" onclick="openHist('${c.id}')" title="Histórico">📅</button>`;
-    return`<tr class="${c.status==='cancelado'?'tr-can':c.status==='pendente'?'tr-pen':''}">
-      <td class="${nc}">${c.cliente||''}</td>
-      <td>${(c.mes_pagamento||'').toUpperCase()||'—'}</td>
-      <td>${pV(c.valor)?fV(pV(c.valor)):'—'}</td>
-      <td>${fD(c.pago_em)||'—'}</td>
-      <td>${c.vencimento||'—'}</td>
-      <td>${fD(c.data_inicio)||'—'}</td>
-      <td><span class="pill ${pc}">${pl}</span></td>
-      <td class="td-obs">${obsText}</td>
-      <td class="td-acts">${btns}</td>
-    </tr>`;
+      ?`
+          ✏️
+          📅
+          🗑️
+        `
+      :`
+          💳
+          📅
+        `;
+    return`
+      ${c.cliente||''}
+      ${(c.mes_pagamento||'').toUpperCase()||'—'}
+      ${fD(c.data_inicio)}
+      ${fD(c.pago_em)}
+      ${c.vencimento||'—'}
+      ${pV(c.valor)?fV(pV(c.valor)):'—'}
+      ${pl}
+      ${c.obs||''}
+      ${btns}
+    `;
   }).join('');
 }
 
@@ -2006,7 +2008,10 @@ function renderCards(filtered){
   if(!cards)return;
   const isA=CU?.role==='admin';
   if(!filtered.length){
-    cards.innerHTML=`<div style="padding:32px;text-align:center;color:var(--muted)"><div style="font-size:2rem;margin-bottom:8px">🔍</div><div>Nenhum cliente encontrado.</div></div>`;
+    cards.innerHTML=`
+      🔍
+      Nenhum cliente encontrado.
+    `;
     return;
   }
   cards.innerHTML=filtered.map(c=>{
@@ -2014,27 +2019,27 @@ function renderCards(filtered){
     const nc=c.status==='cancelado'?'cancel':c.status==='pendente'?'pend':'';
     const pc=c.status==='ativo'?'pill-act':c.status==='cancelado'?'pill-can':'pill-pen';
     const pl=c.status==='ativo'?'✅ Ativo':c.status==='cancelado'?'🔴 Cancelado':'⏳ Pendente';
-    const obsHtml=c.obs?`<div class="cc-obs">${c.obs}</div>`:'';
-    const adminBtns=isA
-      ?`<button class="cc-btn primary" onclick="openCli('${c.id}')">✏️ Editar</button>
-        <button class="cc-btn" onclick="openHist('${c.id}')">📅 Histórico</button>
-        <button class="cc-btn danger" onclick="delCli('${c.id}')">🗑️</button>`
-      :`<button class="cc-btn primary" onclick="openPago('${c.id}')">💳 Registrar Pgto</button>
-        <button class="cc-btn" onclick="openHist('${c.id}')">📅 Histórico</button>`;
-    return`<div class="cli-card ${sc}">
-      <div class="cc-top">
-        <div class="cc-nome ${nc}">${c.cliente||''}</div>
-        <span class="pill ${pc}">${pl}</span>
-      </div>
-      <div class="cc-grid">
-        <div class="cc-field"><span class="cc-label">Mês Pgto</span><span class="cc-value">${(c.mes_pagamento||'').toUpperCase()||'—'}</span></div>
-        <div class="cc-field"><span class="cc-label">Valor</span><span class="cc-value val">${pV(c.valor)?fV(pV(c.valor)):'—'}</span></div>
-        <div class="cc-field"><span class="cc-label">Recebimento</span><span class="cc-value">${fD(c.pago_em)||'—'}</span></div>
-        <div class="cc-field"><span class="cc-label">Vencimento</span><span class="cc-value">${c.vencimento||'—'}</span></div>
-      </div>
+    const obsHtml=c.obs?`${c.obs}`:'';
+    const adminBtns=isA?`
+      ✏️ Editar
+      📅 Histórico
+      🗑️`
+    :`💳 Registrar Pgto
+      📅 Histórico`;
+    return`
+      
+        ${c.cliente||''}
+        ${pl}
+      
+      
+        Mês Pgto${(c.mes_pagamento||'').toUpperCase()||'—'}
+        Valor${pV(c.valor)?fV(pV(c.valor)):'—'}
+        Recebimento${fD(c.pago_em)}
+        Vencimento${c.vencimento||'—'}
+      
       ${obsHtml}
-      <div class="cc-actions">${adminBtns}</div>
-    </div>`;
+      ${adminBtns}
+    `;
   }).join('');
 }
 
@@ -2078,12 +2083,12 @@ async function renderLog(){
   const body=document.getElementById('log-body');
   if(!logs.length){body.innerHTML=`Nenhum registro encontrado.`;return;}
   body.innerHTML=logs.map(l=>{
-    const rp=l.role==='admin'?`<span class="pill pill-acc" style="font-size:10px">admin</span>`:`<span style="font-size:10px;color:var(--muted)">(viewer)</span>`;
-    return`<tr>
-      <td style="font-size:12px;white-space:nowrap">${new Date(l.ts).toLocaleString('pt-BR')}</td>
-      <td>${l.nome} ${rp}</td>
-      <td>${l.acao}${l.det?' — <span style="color:var(--muted)">'+l.det+'</span>':''}</td>
-    </tr>`;
+    const rp=l.role==='admin'?`admin`:`(viewer)`;
+    return`
+      ${new Date(l.ts).toLocaleString('pt-BR')}
+      ${l.nome}${rp}
+      ${l.acao}${l.det?' — '+l.det:''}
+    `;
   }).join('');
 }
 
