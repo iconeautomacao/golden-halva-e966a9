@@ -1,21 +1,72 @@
 <!DOCTYPE html>
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║           SALIM & SALIM — SISTEMA DE GESTÃO DE CL<!DOCTYPE html>
+<!--
+╔══════════════════════════════════════════════════════════════════════════════╗
+║           SALIM & SALIM — SISTEMA DE GESTÃO DE CLIENTES                    ║
+║           ICONE Automação / SOTEC                                           ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  VERSÃO: Final (Maio 2026)                                                  ║
+║  URL: https://golden-halva-e966a9.netlify.app                              ║
+║  HOSPEDAGEM: Netlify (gratuito)                                             ║
+║  BANCO DE DADOS: Firebase Firestore (Google) — Plano Spark (gratuito)      ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  ARQUITETURA:                                                               ║
+║  • Frontend: HTML + CSS + JavaScript puro (sem frameworks)                 ║
+║  • Backend: Firebase Firestore (banco NoSQL em nuvem)                      ║
+║  • SDK Firebase: v9.23.0 compat (carregado dinamicamente via loadScript)   ║
+║  • Hospedagem: Netlify Drop (arquivo estático)                             ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  FIREBASE CONFIG:                                                           ║
+║  • projectId: salim-clientes                                               ║
+║  • apiKey: AIzaSyBomF9RAFxnHySbDYn6DrOKzCIn4E2biRg                       ║
+║  • appId: 1:98513454552:web:9a52ad5ce38c858ac7dead                        ║
+║  • Regras Firestore: allow read, write: if true (modo teste)               ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  COLLECTIONS DO FIRESTORE:                                                  ║
+║  • clientes  — dados dos clientes (id numérico, salvo como string no doc)  ║
+║  • users     — usuários do sistema (admin e visualizadores)                ║
+║  • logs      — log de acessos e ações                                      ║
+║  • historico — histórico de alterações por campo                           ║
+║  • config    — configurações do sistema (notificações etc)                 ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  PERFIS DE USUÁRIO:                                                         ║
+║  • admin: acesso total (CRUD, logs, usuários, backup)                      ║
+║  • viewer: acesso limitado (campos definidos por permissoes{})             ║
+║  Campo permissoes: {pago_em, valor, obs, status, mes_pagamento, data_inicio}║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  CREDENCIAIS PADRÃO:                                                        ║
+║  • Admin: admin@salim.com / salim2024                                      ║
+║  • Robson: robsonlopez18@gmail.com (visualizador — Pago Em + Valor)        ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  ESTRUTURA DO ARQUIVO:                                                      ║
+║  1. <head>  — meta tags, PWA manifest, Google Fonts                        ║
+║  2. <style> — CSS completo (tema escuro, responsivo, mobile-first)         ║
+║  3. <body>  — HTML: tela auth, app, modais                                 ║
+║  4. <script> Firebase — carrega SDK 9.23.0 e expõe window._fb             ║
+║  5. <script> wrapper  — db object usa window._fb, cache, listeners         ║
+║  6. <script> main     — SEED (93 clientes), toda a lógica do sistema       ║
+║  7. <script> PWA      — install prompt (beforeinstallprompt)               ║
+╠══════════════════════════════════════════════════════════════════════════════╣
+║  PONTOS DE ATENÇÃO PARA ALTERAÇÕES:                                         ║
+║  • IDs dos clientes: numéricos no SEED, strings no Firestore doc ID        ║
+║    → Sempre comparar com String(x.id) === String(id)                      ║
+║  • Salvar: usar db.setDoc() direto para 1 cliente, não saveClientes(toda)  ║
+║  • Listeners: onSnapshot do Firebase SDK (tempo real via WebSocket)        ║
+║  • PWA: manifest.json deve estar junto do index.html no Netlify            ║
+║  • Botões salvar: desabilitar durante operação para evitar duplicatas      ║
+╚══════════════════════════════════════════════════════════════════════════════╝
+-->
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2026.06.03.002">
-<title>Salim &amp; Salim — Gestão de Clientes</title>
+<title>Salim & Salim — Gestão de Clientes</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230f0f10'/%3E%3Crect x='8' y='8' width='48' height='48' rx='8' fill='%231a1a1e' stroke='%23c9a84c' stroke-width='2'/%3E%3Ctext x='32' y='24' text-anchor='middle' font-size='11' font-family='serif' fill='%23c9a84c' font-weight='bold'%3ES%26S%3C/text%3E%3Crect x='14' y='29' width='36' height='2' rx='1' fill='%23c9a84c' opacity='.6'/%3E%3Crect x='14' y='35' width='26' height='2' rx='1' fill='%23c9a84c' opacity='.4'/%3E%3Crect x='14' y='41' width='30' height='2' rx='1' fill='%23c9a84c' opacity='.4'/%3E%3C/svg%3E">
-<!-- PWA -->
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Salim &amp; Salim">
-<meta name="theme-color" content="#0f0f10">
-<link rel="manifest" href="manifest.json">
-<!-- Firebase SDK — carregado dinamicamente (CRÍTICO: não usar script src no head) -->
+<!-- Firebase SDK Compat -->
 <script>
+// Carrega Firebase SDK em sequência garantida
 (function(){
   var FB_CONFIG = {
     apiKey: "AIzaSyBomF9RAFxnHySbDYn6DrOKzCIn4E2biRg",
@@ -75,7 +126,12 @@
         }
       };
       window._fbReady = true;
-      window.dispatchEvent(new Event('firebase-ready'));
+              getDoc: function(col, id){
+          return fs.collection(col).doc(String(id)).get().then(function(d){
+            return d.exists ? Object.assign({_docId:d.id}, d.data()) : null;
+          });
+        },
+        window.dispatchEvent(new Event('firebase-ready'));
       console.log('Firebase SDK pronto!');
     }catch(e){
       console.error('Firebase init error:', e);
@@ -90,11 +146,8 @@
     });
   });
 })();
-
 </script>
-<!-- DB Wrapper -->
 <script>
-
 // Wrapper que usa window._fb (preenchido pelo módulo acima)
 let _pollingIntervals = [];
 
@@ -128,21 +181,18 @@ function waitFB(timeout = 20000) {
     window.addEventListener('firebase-ready', () => { clearTimeout(t); resolve(); }, { once: true });
   });
 }
-
-
 </script>
 <style>
-
 :root{
-  --bg:#0f0f10;--surf:#1a1a1e;--surf2:#232328;--surf3:#2a2a30;
-  --bdr:#2e2e35;--bdr2:#3a3a42;--text:#e8e8ec;--muted:#72727a;--muted2:#4a4a52;
-  --accent:#c9a84c;--accent2:#e8c96a;--adim:rgba(201,168,76,.13);
-  --red:#e05252;--rbg:rgba(224,82,82,.13);--rbd:rgba(224,82,82,.3);
-  --green:#52c47a;--gbg:rgba(82,196,122,.13);
-  --yellow:#e0b84c;--ybg:rgba(224,184,76,.13);
-  --blue:#5b9cf6;--bbg:rgba(91,156,246,.13);
-  --r:8px;--rs:6px;--sh:0 8px 32px rgba(0,0,0,.45);
-  --nav-h:60px;
+  --bg:#0f0f10;--surf:#1a1a1e;--surf2:#232328;--surf3:#2a2a30;
+  --bdr:#2e2e35;--bdr2:#3a3a42;--text:#e8e8ec;--muted:#72727a;--muted2:#4a4a52;
+  --accent:#c9a84c;--accent2:#e8c96a;--adim:rgba(201,168,76,.13);
+  --red:#e05252;--rbg:rgba(224,82,82,.13);--rbd:rgba(224,82,82,.3);
+  --green:#52c47a;--gbg:rgba(82,196,122,.13);
+  --yellow:#e0b84c;--ybg:rgba(224,184,76,.13);
+  --blue:#5b9cf6;--bbg:rgba(91,156,246,.13);
+  --r:8px;--rs:6px;--sh:0 8px 32px rgba(0,0,0,.45);
+  --nav-h:60px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{height:100%;font-family:'DM Sans',system-ui,sans-serif;font-size:13px;background:var(--bg);color:var(--text);}
@@ -364,30 +414,6 @@ tbody tr:last-child td{border-bottom:none;}
 .toggle-switch input:checked + .toggle-slider{background:var(--green);}
 .toggle-switch input:checked + .toggle-slider:before{transform:translateX(20px);background:#fff;}
 
-
-/* ── STATUS AGUARDANDO BAIXA ── */
-.pill-aguard{background:rgba(91,156,246,.18);color:#5b9cf6;}
-.pill-aguard::before{background:#5b9cf6;}
-.ct-aguard-badge{background:rgba(91,156,246,.18);color:#5b9cf6;}
-
-/* ── MODAL LOTES ── */
-.lote-card{background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;margin-bottom:10px;}
-.lote-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;}
-.lote-clientes{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:8px;}
-.lote-actions{display:flex;gap:6px;flex-wrap:wrap;}
-.comp-preview{max-width:100%;border-radius:6px;border:1px solid var(--bdr);cursor:pointer;max-height:120px;object-fit:cover;}
-.upload-area{border:2px dashed var(--bdr);border-radius:var(--rs);padding:20px;text-align:center;cursor:pointer;color:var(--muted);font-size:13px;transition:all .15s;}
-.upload-area:hover{border-color:var(--accent);color:var(--accent);}
-.upload-area.has-file{border-color:var(--green);color:var(--green);}
-.cli-check-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;}
-.cli-check-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border:1px solid var(--bdr);border-radius:var(--rs);cursor:pointer;transition:all .12s;}
-.cli-check-item:hover{background:var(--surf2);}
-.cli-check-item.selected{background:var(--bbg);border-color:rgba(91,156,246,.4);}
-.cli-check-item input[type=checkbox]{accent-color:#5b9cf6;width:16px;height:16px;flex-shrink:0;}
-.cli-check-nome{font-size:13px;font-weight:500;flex:1;}
-.cli-check-val{font-size:12px;color:var(--accent);}
-.badge-azul{background:rgba(91,156,246,.18);color:#5b9cf6;border-radius:20px;padding:2px 8px;font-size:11px;font-weight:700;}
-
 /* ── BOTTOM NAV (mobile only) ── */
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--surf);border-top:1px solid var(--bdr);z-index:200;padding-bottom:env(safe-area-inset-bottom);}
 .bnav-inner{display:flex;}
@@ -401,536 +427,579 @@ tbody tr:last-child td{border-bottom:none;}
 .fab:active{transform:scale(.93);}
 
 /* ────────────────────────────────────────────
-   RESPONSIVE BREAKPOINTS
+   RESPONSIVE BREAKPOINTS
 ──────────────────────────────────────────── */
 
 /* Tablet */
 @media(max-width:768px){
-  .tlogo small{display:none;}
-  .tusr .trole{display:none;}
-  .tnav{gap:1px;}
-  .tnav-btn{padding:5px 8px;font-size:11px;}
-  .toolbar .tsep{display:none;}
-  .toolbar .btn-gh:not(#btn-export-wrap *){display:none;}
-  #btn-novo{display:none !important;}
-  .ctab{font-size:11px;padding:7px 10px;}
-  .fg-row{grid-template-columns:1fr;}
+  .tlogo small{display:none;}
+  .tusr .trole{display:none;}
+  .tnav{gap:1px;}
+  .tnav-btn{padding:5px 8px;font-size:11px;}
+  .toolbar .tsep{display:none;}
+  .toolbar .btn-gh:not(#btn-export-wrap *){display:none;}
+  #btn-novo{display:none !important;}
+  .ctab{font-size:11px;padding:7px 10px;}
+  .fg-row{grid-template-columns:1fr;}
 }
 
 /* Mobile */
 @media(max-width:600px){
-  body{font-size:14px;}
-  .topbar{padding:0 12px;height:48px;}
-  .tlogo{font-size:16px;}
-  /* Hide desktop nav — use bottom nav instead */
-  .tnav{display:none;}
-  .tusr{display:none;}
-  .btn-gh.logout-btn{font-size:11px;padding:5px 8px;}
+  body{font-size:14px;}
+  .topbar{padding:0 12px;height:48px;}
+  .tlogo{font-size:16px;}
+  /* Hide desktop nav — use bottom nav instead */
+  .tnav{display:none;}
+  .tusr{display:none;}
+  .btn-gh.logout-btn{font-size:11px;padding:5px 8px;}
 
-  /* Stats compact */
-  .stats-row{gap:6px;padding:8px 10px;}
-  .stat{padding:6px 10px;min-width:62px;}
-  .stat .sn{font-size:16px;}
-  .stat .sl{font-size:9px;}
+  /* Stats compact */
+  .stats-row{gap:6px;padding:8px 10px;}
+  .stat{padding:6px 10px;min-width:62px;}
+  .stat .sn{font-size:16px;}
+  .stat .sl{font-size:9px;}
 
-  /* Toolbar mobile */
-  .toolbar{padding:8px 10px;gap:6px;}
-  .toolbar .tsel{display:none;}
-  .srch{max-width:none;}
-  .toolbar .tsep{display:none;}
-  .toolbar .btn{display:none;}
-  /* Keep only search visible in toolbar on mobile */
-  .srch{flex:1;}
+  /* Toolbar mobile */
+  .toolbar{padding:8px 10px;gap:6px;}
+  .toolbar .tsel{display:none;}
+  .srch{max-width:none;}
+  .toolbar .tsep{display:none;}
+  .toolbar .btn{display:none;}
+  /* Keep only search visible in toolbar on mobile */
+  .srch{flex:1;}
 
-  /* Mobile filter bar (we add this via JS) */
-  .mobile-filters{display:flex;gap:6px;padding:8px 10px;background:var(--surf);border-bottom:1px solid var(--bdr);overflow-x:auto;flex-shrink:0;}
-  .mobile-filters .tsel{flex-shrink:0;font-size:13px;padding:7px 8px;}
-  .mobile-filters .btn{flex-shrink:0;}
+  /* Mobile filter bar (we add this via JS) */
+  .mobile-filters{display:flex;gap:6px;padding:8px 10px;background:var(--surf);border-bottom:1px solid var(--bdr);overflow-x:auto;flex-shrink:0;}
+  .mobile-filters .tsel{flex-shrink:0;font-size:13px;padding:7px 8px;}
+  .mobile-filters .btn{flex-shrink:0;}
 
-  /* Hide desktop table, show cards */
-  .tbl-wrap{display:none;}
-  .cli-cards{display:flex;}
+  /* Hide desktop table, show cards */
+  .tbl-wrap{display:none;}
+  .cli-cards{display:flex;}
 
-  /* Show FAB and bottom nav */
-  .fab{display:flex;}
-  .bottom-nav{display:block;}
+  /* Show FAB and bottom nav */
+  .fab{display:flex;}
+  .bottom-nav{display:block;}
 
-  /* Content gets padding for bottom nav */
-  .content{padding-bottom:var(--nav-h);}
-  #toast{bottom:80px;}
+  /* Content gets padding for bottom nav */
+  .content{padding-bottom:var(--nav-h);}
+  #toast{bottom:80px;}
 
-  /* Tabs become horizontal scrollable pills */
-  .ctabs{gap:6px;padding:8px 10px;overflow-x:auto;}
-  .ctab{border-radius:20px;border:1px solid var(--bdr);padding:6px 12px;font-size:11px;}
-  .ctab.on{background:var(--adim);border-color:var(--accent);color:var(--accent);}
+  /* Tabs become horizontal scrollable pills */
+  .ctabs{gap:6px;padding:8px 10px;overflow-x:auto;}
+  .ctab{border-radius:20px;border:1px solid var(--bdr);padding:6px 12px;font-size:11px;}
+  .ctab.on{background:var(--adim);border-color:var(--accent);color:var(--accent);}
 
-  /* Modal full height from bottom */
-  .ov{align-items:flex-end;padding:0;}
-  .modal{border-radius:16px 16px 0 0;max-height:92dvh;}
-  .mfoot{flex-direction:column-reverse;gap:8px;}
-  .mfoot .btn{width:100%;justify-content:center;padding:13px;}
-  .mfoot .btn-acc{font-size:14px;}
+  /* Modal full height from bottom */
+  .ov{align-items:flex-end;padding:0;}
+  .modal{border-radius:16px 16px 0 0;max-height:92dvh;}
+  .mfoot{flex-direction:column-reverse;gap:8px;}
+  .mfoot .btn{width:100%;justify-content:center;padding:13px;}
+  .mfoot .btn-acc{font-size:14px;}
 
-  /* Section padding */
-  .section{padding:10px;}
-  .sec-hdr{margin-bottom:10px;}
+  /* Section padding */
+  .section{padding:10px;}
+  .sec-hdr{margin-bottom:10px;}
 
-  /* Log mobile */
-  .log-row{padding:10px 12px;}
+  /* Log mobile */
+  .log-row{padding:10px 12px;}
 
-  /* Users mobile */
-  .ucard{flex-wrap:wrap;}
-  .ucard-l{flex:1;min-width:0;}
+  /* Users mobile */
+  .ucard{flex-wrap:wrap;}
+  .ucard-l{flex:1;min-width:0;}
 
-  /* Totals bar compact */
-  .tot-bar{gap:8px;padding:8px 10px;}
-  .tot-item{font-size:11px;}
-  .tot-item b{font-size:13px;}
+  /* Totals bar compact */
+  .tot-bar{gap:8px;padding:8px 10px;}
+  .tot-item{font-size:11px;}
+  .tot-item b{font-size:13px;}
 }
 
 /* Very small */
 @media(max-width:360px){
-  .stat .sn{font-size:14px;}
-  .auth-box{padding:22px 16px;}
+  .stat .sn{font-size:14px;}
+  .auth-box{padding:22px 16px;}
 }
+/* ══ COMPROVANTES ══════════════════════════════════════════════ */
+.pill-aguard{background:rgba(91,156,246,.18);color:#5b9cf6;}
+.pill-baixado{background:rgba(82,196,122,.18);color:#52c47a;}
+.pill-rejeit{background:rgba(224,82,82,.18);color:#e05252;}
+
+.comp-card{background:var(--surf2);border:1px solid var(--bdr);border-radius:10px;padding:14px;margin-bottom:12px;}
+.comp-card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:10px;}
+.comp-info{display:grid;grid-template-columns:1fr 1fr;gap:6px 16px;margin-bottom:10px;font-size:12px;}
+.comp-info-item{display:flex;flex-direction:column;gap:2px;}
+.comp-info-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;}
+.comp-info-val{font-weight:600;color:var(--text);}
+.comp-img-preview{width:100%;max-height:160px;object-fit:cover;border-radius:6px;border:1px solid var(--bdr);cursor:zoom-in;margin-bottom:10px;}
+.comp-clientes{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:10px;}
+.comp-cli-tag{background:var(--surf);border:1px solid var(--bdr);border-radius:4px;padding:2px 8px;font-size:11px;display:flex;align-items:center;gap:6px;}
+.comp-cli-tag.baixado{border-color:var(--green);color:var(--green);}
+.comp-cli-tag.aguard{border-color:#5b9cf6;color:#5b9cf6;}
+.comp-cli-tag.rejeit{border-color:var(--red);color:var(--red);}
+.comp-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.comp-audit{font-size:11px;color:var(--muted);border-top:1px solid var(--bdr);padding-top:8px;margin-top:8px;}
+.upload-zone{border:2px dashed var(--bdr);border-radius:8px;padding:24px;text-align:center;cursor:pointer;transition:all .15s;color:var(--muted);}
+.upload-zone:hover{border-color:var(--accent);color:var(--accent);}
+.upload-zone.has-img{border-color:var(--green);color:var(--green);}
+.comp-filter-bar{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;align-items:center;}
+.cli-sel-list{max-height:200px;overflow-y:auto;border:1px solid var(--bdr);border-radius:6px;padding:4px;}
+.cli-sel-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:4px;cursor:pointer;font-size:13px;}
+.cli-sel-item:hover{background:var(--surf2);}
+.cli-sel-item input{accent-color:var(--accent);}
+.val-por-cli{display:flex;gap:8px;align-items:center;padding:4px 0;font-size:12px;}
+.val-por-cli input{width:100px;padding:4px 8px;background:var(--surf2);border:1px solid var(--bdr);border-radius:4px;color:var(--text);font-size:12px;}
+.rejeitar-motivo{width:100%;padding:8px;background:var(--surf2);border:1px solid var(--bdr);border-radius:6px;color:var(--text);resize:vertical;min-height:80px;font-family:inherit;font-size:13px;}
+.badge-count{background:var(--accent);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;font-weight:700;margin-left:4px;}
 
 </style>
+<!-- PWA - Instalar como app -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Salim & Salim">
+<meta name="application-name" content="Salim & Salim">
+<meta name="theme-color" content="#0f0f10">
+<link rel="manifest" href="manifest.json">
+<!-- Ícone para iOS -->
+<link rel="apple-touch-icon" href="https://api.iconify.design/mdi:account-group.svg?color=%23e8c96a&width=192&height=192">
 </head>
 <body>
 
-  
-    Salim &amp; Salim
-    Gestão de Clientes ICONE / SOTEC
-    
-      Entrar
-      + Novo usuário
-    
+<!-- ═══ AUTH ═══════════════════════════════════════ -->
+<div id="auth">
+  <div class="auth-box">
+    <div class="auth-logo">Salim &amp; Salim</div>
+    <div class="auth-sub">Gestão de Clientes ICONE / SOTEC</div>
+    <div class="auth-tabs" id="atabs">
+      <div class="atab on" onclick="aTab('login')">Entrar</div>
+      <div class="atab" id="atab-reg" style="display:none" onclick="aTab('register')">+ Novo usuário</div>
+    </div>
 
-    
-    
-      Email
-      Senha
-      Entrar
-      
-    
+    <!-- LOGIN -->
+    <div id="aform-login">
+      <div class="afield"><label>Email</label><input type="email" id="l-email" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <div class="afield"><label>Senha</label><input type="password" id="l-pass" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+      <button class="abtn" onclick="doLogin()">Entrar</button>
+      <div class="aerr" id="l-err"></div>
+    </div>
 
-    
-    
-      Nome completo
-      Email
-      Senha inicial
-      Perfil de acesso
-        
-          Visualizador — só registra pagamentos
-          Administrador — acesso total
-        
-      
-      Cadastrar usuário
-      
-    
-  
+    <!-- CADASTRO -->
+    <div id="aform-register" style="display:none">
+      <div class="afield"><label>Nome completo</label><input type="text" id="r-nome" placeholder="João Silva"></div>
+      <div class="afield"><label>Email</label><input type="email" id="r-email" placeholder="email@exemplo.com"></div>
+      <div class="afield"><label>Senha inicial</label><input type="password" id="r-pass" placeholder="••••••"></div>
+      <div class="afield"><label>Perfil de acesso</label>
+        <select id="r-role">
+          <option value="viewer">Visualizador — só registra pagamentos</option>
+          <option value="baixador">Baixador de Pagamentos</option>
+          <option value="admin">Administrador — acesso total</option>
+        </select>
+      </div>
+      <button class="abtn" onclick="doRegister()">Cadastrar usuário</button>
+      <div class="aerr" id="r-err"></div>
+    </div>
+  </div>
+</div>
 
+<!-- ═══ APP ════════════════════════════════════════ -->
+<div id="app">
 
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div class="tlogo">Salim &amp; Salim <small>Gestão de Clientes</small></div>
+      <div id="conn-status" style="font-size:11px;padding:3px 10px;border-radius:20px;background:var(--gbg);color:var(--green);display:none;">🟢 Online</div>
+      <div class="tnav">
+        <div class="tnav-btn on" data-s="clientes" onclick="showSec('clientes')">Clientes</div>
+        <div class="tnav-btn" id="tnav-comp" data-s="comprovantes" onclick="showSec('comprovantes')" style="display:none">📎 Comprovantes<span class="badge-count" id="badge-comp" style="display:none">0</span></div>
+      <div class="tnav-btn" id="tnav-log" data-s="log" onclick="showSec('log')">Log de Acessos</div>
+        <div class="tnav-btn" id="tnav-users" data-s="usuarios" onclick="showSec('usuarios')">Usuários</div>
+      </div>
+    </div>
+    <div class="tright">
+      <span class="tusr">Olá, <b id="cur-nome"></b><span class="trole" id="cur-role-badge"></span></span>
+      <button class="btn btn-gh btn-xs" onclick="doLogout()" class="btn btn-gh btn-xs logout-btn">Sair</button>
+    </div>
+  </div>
 
+  <!-- BOTTOM NAV (mobile) -->
+  <div class="bottom-nav">
+    <div class="bnav-inner">
+      <button class="bnav-btn on" id="bnav-clientes" onclick="showSec('clientes')"><span class="bico">&#x1F4CB;</span>Clientes</button>
+      <button class="bnav-btn" id="bnav-comp" onclick="showSec('comprovantes')" style="display:none"><span class="bico">📎</span>Comprovantes</button>
+      <button class="bnav-btn" id="bnav-log" onclick="showSec('log')"><span class="bico">&#x1F4C4;</span>Log</button>
+      <button class="bnav-btn" id="bnav-usuarios" onclick="showSec('usuarios')"><span class="bico">&#x1F465;</span>Usuários</button>
+      <button class="bnav-btn" onclick="doLogout()"><span class="bico">&#x1F6AA;</span>Sair</button>
+    </div>
+  </div>
 
+  <!-- FAB (mobile novo cliente) -->
+  <button class="fab" id="fab-novo" onclick="openModal()" title="Novo cliente">＋</button>
 
-  
-  
-    
-      Salim &amp; Salim Gestão de Clientes
-      🟢 Online
-      
-        Clientes
-        Log de Acessos
-        Usuários
-        📎 Lotes
-      
-    
-    
-      Olá, 
-      Sair
-    
-  
+  <!-- MOBILE FILTER BAR -->
+  <div class="mobile-filters" id="mobile-filters" style="display:none;">
+    <select class="tsel" id="f-mes-m" onchange="document.getElementById('f-mes').value=this.value;renderTable()"><option value="">Todos os meses</option></select>
+    <select class="tsel" id="f-status-m" onchange="document.getElementById('f-status').value=this.value;renderTable()">
+      <option value="">Todos status</option>
+      <option value="ativo">Ativo</option>
+      <option value="cancelado">Cancelado</option>
+      <option value="pendente">Pendente</option>
+    </select>
+    <select class="tsel" id="f-sort-m" onchange="document.getElementById('f-sort').value=this.value;renderTable()">
+      <option value="nome">Nome</option>
+      <option value="mes">Mês</option>
+      <option value="valor">Valor</option>
+      <option value="pago">Recebimento</option>
+      <option value="venc">Vencimento</option>
+      <option value="inicio">Data Início</option>
+    </select>
+  </div>
 
-  
-  
-    🔄 Verificando versão...
-    
-  
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat stot"><div class="sn" id="st-tot">0</div><div class="sl">Total</div></div>
+    <div class="stat sact"><div class="sn" id="st-act">0</div><div class="sl">Ativos</div></div>
+    <div class="stat scan"><div class="sn" id="st-can">0</div><div class="sl">Cancelados</div></div>
+    <div class="stat spend"><div class="sn" id="st-pen">0</div><div class="sl">Pendentes</div></div>
+  </div>
 
-  
-  
-    
-      &#x1F4CB;Clientes
-      &#x1F4C4;Log
-      &#x1F465;Usuários
-      📎Lotes
-      &#x1F6AA;Sair
-    
-  
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="srch"><span class="srch-ic">🔍</span><input type="text" id="srch" placeholder="Buscar cliente..." oninput="renderTable()"></div>
+    <select class="tsel" id="f-mes" onchange="renderTable()"><option value="">Todos os meses</option></select>
+    <select class="tsel" id="f-status" onchange="renderTable()">
+      <option value="">Todos os status</option>
+      <option value="ativo">Ativo</option>
+      <option value="cancelado">Cancelado</option>
+      <option value="pendente">Pendente</option>
+    </select>
+    <select class="tsel" id="f-sort" onchange="renderTable()">
+      <option value="nome">Ordenar: Nome</option>
+      <option value="mes">Ordenar: Mês Pgto</option>
+      <option value="valor">Ordenar: Valor</option>
+      <option value="pago">Ordenar: Recebimento</option>
+      <option value="venc">Ordenar: Vencimento</option>
+      <option value="inicio">Ordenar: Data de Início</option>
+      <option value="status">Ordenar: Status</option>
+    </select>
+    <div class="tsep"></div>
+    <button class="btn btn-gh btn-xs" id="btn-limpar" onclick="resetF()">✕ Limpar</button>
+    <button class="btn btn-acc btn-xs" id="btn-novo" onclick="openModal()">＋ Novo cliente</button>
+    <button class="btn btn-out btn-xs" id="btn-excel" onclick="exportXLS()">⬇ Baixar Excel</button>
+    <button class="btn btn-gh btn-xs" id="btn-backup" onclick="exportDB()" title="Baixar backup completo">&#x1F4E4; Backup</button>
+    <button class="btn btn-acc btn-xs" id="btn-publicar" onclick="publicarNoGitHub()" title="Enviar nova versão para o GitHub e atualizar o sistema automaticamente">🚀 Publicar</button>
+    <button class="btn btn-gh btn-xs" id="btn-importar" onclick="importDB()" title="Importar backup">&#x1F4E5; Importar</button>
+    <button class="btn btn-gh btn-xs" id="btn-restaurar" onclick="if(confirm('Restaurar dados originais da planilha?')){resetData();}" title="Restaurar dados originais">↺ Restaurar</button>
+  </div>
 
-  
-  ＋
+  <!-- CTABS -->
+  <div class="ctabs">
+    <div class="ctab on" data-ct="todos" onclick="setCTab('todos')">Todos <span class="cbadge cbadge-all" id="ct-todos">0</span></div>
+    <div class="ctab" data-ct="ativos" onclick="setCTab('ativos')">✅ Ativos <span class="cbadge cbadge-act" id="ct-ativos">0</span></div>
+    <div class="ctab" data-ct="cancelados" onclick="setCTab('cancelados')">🔴 Cancelados <span class="cbadge cbadge-can" id="ct-cancelados">0</span></div>
+    <div class="ctab" data-ct="pendentes" onclick="setCTab('pendentes')">⏳ Pendentes <span class="cbadge cbadge-pen" id="ct-pendentes">0</span></div>
+  </div>
 
-  
-  
-    Todos os meses
-    
-      Todos status
-      Ativo
-      Cancelado
-      Pendente
-    
-    
-      Nome
-      Mês
-      Valor
-      Recebimento
-      Vencimento
-      Data Início
-    
-  
+  <!-- CONTENT -->
+  <div class="content">
 
-  
-  
-    0Total
-    0Ativos
-    0Cancelados
-    0Pendentes
-  
+    <!-- CLIENTES -->
+    <div class="section on" id="sec-clientes">
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th onclick="sortBy('nome')">Cliente <span id="si-nome"></span></th>
+              <th onclick="sortBy('mes')">Mês Pgto <span id="si-mes"></span></th>
+              <th onclick="sortBy('data')">Data Início <span id="si-data"></span></th>
+              <th onclick="sortBy('pago')">Recebimento <span id="si-pago"></span></th>
+              <th onclick="sortBy('venc')">Vencimento <span id="si-venc"></span></th>
+              <th onclick="sortBy('valor')">Valor <span id="si-valor"></span></th>
+              <th onclick="sortBy('status')">Status <span id="si-status"></span></th>
+              <th>Observações</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <!-- MOBILE CARDS -->
+      <div class="cli-cards" id="cli-cards"></div>
+      <div class="tot-bar">
+        <div class="tot-item">Exibindo: <b id="tot-n">0</b></div>
+        <div class="tot-item">Faturamento (ativos/pendentes): <b id="tot-ap">—</b></div>
+        <div class="tot-item">Total geral: <b id="tot-g">—</b></div>
+      </div>
+    </div>
 
-  
-  
-    🔍
-    Todos os meses
-    
-      Todos os status
-      Ativo
-      Cancelado
-      Pendente
-    
-    
-      Ordenar: Nome
-      Ordenar: Mês Pgto
-      Ordenar: Valor
-      Ordenar: Recebimento
-      Ordenar: Vencimento
-      Ordenar: Data de Início
-      Ordenar: Status
-    
-    
-    ✕ Limpar
-    ＋ Novo cliente
-    ⬇ Baixar Excel
-    &#x1F4E4; Backup
-    🚀 Publicar
-    &#x1F4E5; Importar
-    ↺ Restaurar
-  
+    <!-- LOG -->
+    <div class="sect<!-- SEÇÃO COMPROVANTES -->
+    <div id="sec-comprovantes" class="section">
+      <div class="sec-hdr" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <h2 style="margin:0">📎 Comprovantes de Pagamento</h2>
+        <button id="btn-novo-comp" class="btn btn-acc btn-xs" onclick="openNovoComp()" style="display:none">+ Novo Comprovante</button>
+      </div>
+      <div class="comp-filter-bar">
+        <input type="search" id="cf-busca" placeholder="🔍 Buscar cliente, banco, ref..." class="srch-inp" style="flex:1;min-width:160px" oninput="renderComprovantes()">
+        <select id="cf-status" class="sel" onchange="renderComprovantes()">
+          <option value="">Todos status</option>
+          <option value="aguardando">Aguardando baixa</option>
+          <option value="baixado">Baixado</option>
+          <option value="rejeitado">Rejeitado</option>
+        </select>
+        <input type="date" id="cf-data-ini" class="sel" onchange="renderComprovantes()" title="Data início">
+        <input type="date" id="cf-data-fim" class="sel" onchange="renderComprovantes()" title="Data fim">
+      </div>
+      <div id="comp-lista"></div>
+    </div>
 
-  
-  
-    Todos 0
-    ✅ Ativos 0
-    🔴 Cancelados 0
-    ⏳ Pendentes 0
-  
+    <div ion" id="sec-log">
+      <div class="sec-hdr">
+        <h2>Log de Acessos e Alterações</h2>
+        <button class="btn btn-gh btn-xs" onclick="renderLog()">↻ Atualizar</button>
+      </div>
+      <div class="toolbar" style="border:none;padding:0 0 12px;">
+        <div class="srch"><span class="srch-ic">🔍</span><input type="text" id="log-srch" placeholder="Filtrar por usuário ou ação..." oninput="renderLog()"></div>
+        <button class="btn btn-gh btn-xs" onclick="exportLogXLS()">⬇ Exportar log</button>
+      </div>
+      <div class="tbl-wrap"><div id="log-body"></div></div>
+    </div>
 
-  
-  
+    <!-- USUÁRIOS -->
+    <div class="section" id="sec-usuarios">
+      <div class="sec-hdr">
+        <h2>Usuários com Acesso</h2>
+        <button class="btn btn-acc btn-xs" onclick="openOv('ov-novo-user')">&#xFF0B; Cadastrar Usuário</button>
+      </div>
+      <div id="users-list"></div>
 
-    
-    
-      
-        
-          
-            
-              Cliente 
-              Mês Pgto 
-              Data Início 
-              Recebimento 
-              Vencimento 
-              Valor 
-              Status 
-              Observações
-              Ações
-            
-          
-          
-        
-      
-      
-      
-      
-        Exibindo: 0
-        Faturamento (ativos/pendentes): —
-        Total geral: —
-      
-    
+</div>
+    </div>
 
-    
-    
-      
-        Log de Acessos e Alterações
-        ↻ Atualizar
-      
-      
-        🔍
-        ⬇ Exportar log
-      
-      
-    
+  </div><!-- /content -->
 
-    
-    
-      
-        Usuários com Acesso
-        <button class="btn btn-acc btn-xs" onclick="renderRolesCheckboxes('nu-roles',['viewer']);openOv('ov-novo-user')">&#xFF0B; Cadastrar Usuário</button>
-      
-      
+  <!-- TOTALS (fixed bottom) handled inline -->
+</div><!-- /app -->
 
+<!-- ═══ MODAIS ═══════════════════════════════════ -->
 
-    
+<!-- CLIENTE -->
+<div class="ov" id="ov-cli" onclick="ovClick(event,'ov-cli')">
+  <div class="modal">
+    <div class="mhdr"><h2 id="mtitle">Novo cliente</h2><button class="mclose" onclick="closeOv('ov-cli')">✕</button></div>
+    <div class="mbody">
+      <div class="fg"><label>Nome do cliente *</label><input type="text" id="f-nome" placeholder="NOME DO CLIENTE"></div>
+      <div class="fg-row">
+        <div class="fg"><label>Mês de Pagamento</label>
+          <select id="f-mes-c">
+            <option value="">—</option>
+            <option>JANEIRO</option><option>FEVEREIRO</option><option>MARÇO</option>
+            <option>ABRIL</option><option>MAIO</option><option>JUNHO</option>
+            <option>JULHO</option><option>AGOSTO</option><option>SETEMBRO</option>
+            <option>OUTUBRO</option><option>NOVEMBRO</option><option>DEZEMBRO</option>
+            <option>FEVEREIRO/MARÇO</option>
+          </select>
+        </div>
+        <div class="fg"><label>Valor (R$)</label><input type="text" id="f-valor" placeholder="607,20"></div>
+      </div>
+      <div class="fg-row">
+        <div class="fg"><label>Data de Início</label><input type="date" id="f-data"></div>
+        <div class="fg"><label>Data de Recebimento</label><input type="date" id="f-pago" oninput="autoVencimento()"></div>
+      </div>
+      <div class="fg" id="fg-vencimento"><label>📅 Mês/Ano de Vencimento <span style="font-size:11px;font-weight:400;color:var(--muted);">(gerado automaticamente)</span></label><input type="text" id="f-vencimento" placeholder="Ex: 08/2026" title="Gerado automaticamente ao alterar Data de Recebimento"></div>
+      <div class="fg"><label>Status</label>
+        <div class="srow">
+          <div class="sopt" id="sopt-ativo" onclick="selS('ativo')">✅ Ativo</div>
+          <div class="sopt" id="sopt-cancelado" onclick="selS('cancelado')">🔴 Cancelado</div>
+          <div class="sopt" id="sopt-pendente" onclick="selS('pendente')">⏳ Pendente</div>
+        </div>
+      </div>
+      <div class="fg" id="fg-obs-admin"><label>Observações (Admin)</label><textarea id="f-obs-admin" placeholder="Observações do administrador..."></textarea></div>
+      <div class="fg" id="fg-obs-viewer" style="display:none"><label>Observações</label>
+        <div id="obs-admin-display" style="background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px 12px;font-size:14px;color:var(--muted);min-height:40px;margin-bottom:8px;white-space:pre-wrap;line-height:1.5;"></div>
+        <textarea id="f-obs-viewer" placeholder="Adicionar nova observação..."></textarea>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">💡 Observações do admin são protegidas. Você pode adicionar observações abaixo.</div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-gh btn-xs" onclick="closeOv('ov-cli')">Cancelar</button>
+      <button class="btn btn-acc btn-xs" onclick="saveCli()">💾 Salvar cliente</button>
+    </div>
+  </div>
+</div>
 
-  
+<!-- PAGAMENTO (viewer) -->
+<div class="ov" id="ov-pago" onclick="ovClick(event,'ov-pago')">
+  <div class="modal pago-modal">
+    <div class="mhdr"><h2>Registrar Pagamento</h2><button class="mclose" onclick="closeOv('ov-pago')">✕</button></div>
+    <div class="mbody">
+      <p style="font-weight:600;font-size:14px;margin-bottom:16px;" id="pago-nome"></p>
+      <div class="fg"><label>Data de Recebimento *</label><input type="date" id="pago-data" oninput="autoVencPago()"></div>
+      <div class="fg"><label>Valor pago (R$)</label><input type="text" id="pago-val" placeholder="Ex: 620,00"></div>
+      <div style="background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px 12px;font-size:12px;color:var(--muted);margin-top:8px;">
+        💡 O valor e data anteriores serão guardados no histórico automaticamente.
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-gh btn-xs" onclick="closeOv('ov-pago')">Cancelar</button>
+      <button class="btn btn-acc btn-xs" onclick="savePago()">✔ Confirmar pagamento</button>
+    </div>
+  </div>
+</div>
 
-  
+<!-- HISTÓRICO -->
+<div class="ov" id="ov-hist" onclick="ovClick(event,'ov-hist')">
+  <div class="modal" style="max-width:520px;">
+    <div class="mhdr"><h2 id="hist-title">Histórico</h2><button class="mclose" onclick="closeOv('ov-hist')">✕</button></div>
+    <div class="mbody" id="hist-body"></div>
+  </div>
+</div>
 
-
-
-
-
-
-  
-    <!-- SEÇÃO LOTES -->
-    <div id="sec-lotes" class="section" style="display:none"><div class="sec-hdr"><h2>📎 Comprovantes & Lotes</h2><button class="btn btn-acc btn-xs" id="btn-novo-lote" onclick="openNovoLote()" style="display:none">+ Enviar Comprovante</button></div><div id="lotes-list"></div></div>
-    
-
-    <!-- MODAL NOVO LOTE -->
-<div class="ov" id="ov-novo-lote" onclick="ovClick(event,'ov-novo-lote')"><div class="modal" style="max-width:520px"><div class="mhdr"><h2>📎 Enviar Comprovante</h2><button class="mclose" onclick="closeOv('ov-novo-lote')">✕</button></div><div class="mbody"><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Clientes com vencimento este mês</div><div class="cli-check-list" id="lote-clientes-lista"></div><div style="margin-top:16px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px">Comprovante(s)</div><div class="upload-area" id="lote-upload-area" onclick="document.getElementById('lote-file-input').click()">📎 Toque aqui para anexar comprovante(s) (JPG/PNG)</div><input type="file" id="lote-file-input" accept="image/jpeg,image/png" multiple style="display:none" onchange="handleLoteUpload(this)"><div id="lote-preview-area" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px"></div></div><div class="mfoot"><button class="btn btn-gh btn-xs" onclick="closeOv('ov-novo-lote')">Cancelar</button><button class="btn btn-acc btn-xs" id="btn-salvar-lote" onclick="salvarLote()">📤 Enviar Lote</button></div></div></div>
-
-    <!-- MODAL BAIXA PARCIAL -->
-<div class="ov" id="ov-baixa-parcial" onclick="ovClick(event,'ov-baixa-parcial')"><div class="modal" style="max-width:420px"><div class="mhdr"><h2>📝 Baixa Parcial</h2><button class="mclose" onclick="closeOv('ov-baixa-parcial')">✕</button></div><div class="mbody"><div style="font-size:12px;color:var(--muted);margin-bottom:12px">Selecione os clientes para dar baixa:</div><div class="cli-check-list" id="baixa-clientes-lista"></div></div><div class="mfoot"><button class="btn btn-gh btn-xs" onclick="closeOv('ov-baixa-parcial')">Cancelar</button><button class="btn btn-acc btn-xs" id="btn-confirm-baixa-parcial">✅ Confirmar Baixa</button></div></div></div>
-
-
-  
-    Novo cliente✕
-    
-      Nome do cliente *
-      
-        Mês de Pagamento
-          
-            —
-            JANEIROFEVEREIROMARÇO
-            ABRILMAIOJUNHO
-            JULHOAGOSTOSETEMBRO
-            OUTUBRONOVEMBRODEZEMBRO
-            FEVEREIRO/MARÇO
-          
-        
-        Valor (R$)
-      
-      
-        Data de Início
-        Data de Recebimento
-      
-      📅 Mês/Ano de Vencimento (gerado automaticamente)
-      Status
-        
-          ✅ Ativo
-          🔴 Cancelado
-          ⏳ Pendente
-        
-      
-      Observações (Admin)
-      Observações
-        
-        
-        💡 Observações do admin são protegidas. Você pode adicionar observações abaixo.
-      
-    
-    
-      Cancelar
-      💾 Salvar cliente
-    
-  
-
-
-
-
-  
-    Registrar Pagamento✕
-    
-      
-      Data de Recebimento *
-      Valor pago (R$)
-      
-        💡 O valor e data anteriores serão guardados no histórico automaticamente.
-      
-    
-    
-      Cancelar
-      ✔ Confirmar pagamento
-    
-  
-
-
-
-
-  
-    Histórico✕
-    
-  
-
-
-
-
-  
-    ✕
-    
-      🗑️
-      Excluir cliente
-      
-      Esta ação é permanente e não pode ser desfeita.
-    
-    
-      Cancelar
-      Sim, excluir
-    
-  
-
-
-
-
-
-  
-    
-      Cadastrar Usu&#225;rio
-      &#x2715;
-    
-    
-      
-        Nome completo *
-        Email (login) *
-      
-      
-        Senha *
-        Perfil base
-          
-            Visualizador (acesso limitado)
-            Pagador (envia comprovantes)
-            Baixador (confirma pagamentos)
-            Administrador (acesso total)
-        <div id="nu-roles"></div>
-          
-        
-      
-      
-        Campos que este usu&#225;rio pode alterar:
-        
-          &#x1F4C5; Pago Em
-          &#x1F4B0; Valor
-          &#x1F4DD; Observa&#231;&#245;es
-          &#x1F6A6; Status
-          &#x1F4C6; M&#234;s Pgto
-          &#x1F4C4; Data In&#237;cio
-        
-      
-      
-        &#128161; O usu&#225;rio entra com o email e senha que voc&#234; definiu. Somente os campos marcados poder&#227;o ser alterados por ele.
-      
-      
-    
-    
-      Cancelar
-      &#x2714; Cadastrar usu&#225;rio
-    
-  
+<!-- DELETAR -->
+<div class="ov" id="ov-del" onclick="ovClick(event,'ov-del')">
+  <div class="modal conf-modal">
+    <div class="mhdr" style="border:none;padding-bottom:0;"><span></span><button class="mclose" onclick="closeOv('ov-del')">✕</button></div>
+    <div class="conf-body">
+      <div class="conf-icon">🗑️</div>
+      <h3>Excluir cliente</h3>
+      <p id="del-nome" style="color:var(--red);font-weight:600;font-size:14px;margin:8px 0;"></p>
+      <p>Esta ação é permanente e não pode ser desfeita.</p>
+    </div>
+    <div class="mfoot" style="justify-content:center;gap:12px;">
+      <button class="btn btn-gh btn-xs" onclick="closeOv('ov-del')">Cancelar</button>
+      <button class="btn btn-red btn-xs" onclick="confirmDel()">Sim, excluir</button>
+    </div>
+  </div>
+</div>
 
 
+<!-- NOVO USUÁRIO MODAL -->
+<div class="ov" id="ov-novo-user" onclick="ovClick(event,'ov-novo-user')">
+  <div class="modal" style="max-width:500px;">
+    <div class="mhdr">
+      <h2>Cadastrar Usu&#225;rio</h2>
+      <button class="mclose" onclick="closeOv('ov-novo-user')">&#x2715;</button>
+    </div>
+    <div class="mbody">
+      <div class="fg-row">
+        <div class="fg"><label>Nome completo *</label><input type="text" id="nu-nome" placeholder="Ex: Robson Silva"></div>
+        <div class="fg"><label>Email (login) *</label><input type="email" id="nu-email" placeholder="email@exemplo.com"></div>
+      </div>
+      <div class="fg-row">
+        <div class="fg"><label>Senha *</label><input type="password" id="nu-pass" placeholder="M&#237;nimo 4 caracteres"></div>
+        <div class="fg"><label>Perfil base</label>
+          <select id="nu-role" onchange="togglePermFields()">
+            <option value="viewer">Visualizador (acesso limitado)</option>
+            <option value="baixador">Baixador de Pagamentos</option>
+            <option value="admin">Administrador (acesso total)</option>
+          </select>
+        </div>
+      </div>
+      <div id="perm-section" style="margin-top:8px;">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;padding-top:8px;border-top:1px solid var(--bdr);">Campos que este usu&#225;rio pode alterar:</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <label class="perm-opt"><input type="checkbox" id="perm-pago_em" checked><span>&#x1F4C5; Pago Em</span></label>
+          <label class="perm-opt"><input type="checkbox" id="perm-valor"><span>&#x1F4B0; Valor</span></label>
+          <label class="perm-opt"><input type="checkbox" id="perm-obs"><span>&#x1F4DD; Observa&#231;&#245;es</span></label>
+          <label class="perm-opt"><input type="checkbox" id="perm-status"><span>&#x1F6A6; Status</span></label>
+          <label class="perm-opt"><input type="checkbox" id="perm-mes_pagamento"><span>&#x1F4C6; M&#234;s Pgto</span></label>
+          <label class="perm-opt"><input type="checkbox" id="perm-data_inicio"><span>&#x1F4C4; Data In&#237;cio</span></label>
+          <label class="perm-opt"><input type="checkbox" id="perm-pode_comprovante"><span>&#x1F4CE; Cadastrar Comprovantes</span></label>
+        </div>
+      </div>
+      <div style="background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px 12px;font-size:12px;color:var(--muted);margin-top:12px;">
+        &#128161; O usu&#225;rio entra com o email e senha que voc&#234; definiu. Somente os campos marcados poder&#227;o ser alterados por ele.
+      </div>
+      <div class="aerr" id="nu-err"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-gh btn-xs" onclick="closeOv('ov-novo-user')">Cancelar</button>
+      <button class="btn btn-acc btn-xs" onclick="doNovoUser()">&#x2714; Cadastrar usu&#225;rio</button>
+    </div>
+  </div>
+</div>
 
+<!-- EDITAR USUÁRIO -->
+<div class="ov" id="ov-edit-user" onclick="ovClick(event,'ov-edit-user')">
+  <div class="modal" style="max-width:460px;">
+    <div class="mhdr">
+      <h2 id="eu-title">Editar Usuário</h2>
+      <button class="mclose" onclick="closeOv('ov-edit-user')">&#x2715;</button>
+    </div>
+    <div class="mbody">
+      <input type="hidden" id="eu-id">
+      <div class="fg"><label>Nome completo *</label><input type="text" id="eu-nome" placeholder="Nome completo"></div>
+      <div class="fg"><label>Email (login) *</label><input type="email" id="eu-email" placeholder="email@exemplo.com"></div>
+      <div class="fg">
+        <label>Nova senha <span style="color:var(--muted);font-weight:400;">(deixe em branco para manter a atual)</span></label>
+        <input type="password" id="eu-pass" placeholder="Nova senha (mínimo 4 caracteres)">
+      </div>
+      <div class="fg" id="eu-role-row">
+        <label>Perfil de acesso</label>
+        <select id="eu-role" onchange="toggleEditPermFields()">
+          <option value="viewer">Visualizador (acesso limitado)</option>
+          <option value="baixador">Baixador de Pagamentos</option>
+          <option value="admin">Administrador (acesso total)</option>
+        </select>
+      </div>
+      <div id="eu-perm-section" style="margin-top:8px;">
+        <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;padding-top:8px;border-top:1px solid var(--bdr);">Campos que pode alterar:</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <label class="perm-opt"><input type="checkbox" id="eu-perm-pago_em"><span>&#x1F4C5; Pago Em</span></label>
+          <label class="perm-opt"><input type="checkbox" id="eu-perm-valor"><span>&#x1F4B0; Valor</span></label>
+          <label class="perm-opt"><input type="checkbox" id="eu-perm-obs"><span>&#x1F4DD; Observa&#231;&#245;es</span></label>
+          <label class="perm-opt"><input type="checkbox" id="eu-perm-status"><span>&#x1F6A6; Status</span></label>
+          <label class="perm-opt"><input type="checkbox" id="eu-perm-mes_pagamento"><span>&#x1F4C6; M&#234;s Pgto</span></label>
+          <label class="perm-opt"><input type="checkbox" id="eu-perm-data_inicio"><span>&#x1F4C4; Data In&#237;cio</span></label>
+        </div>
+      </div>
+      <div style="background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px 12px;font-size:12px;color:var(--muted);margin-top:4px;">
+        &#128161; Se alterar o email ou senha, o usuário precisará usar as novas credenciais no próximo acesso.
+      </div>
+      <div class="aerr" id="eu-err"></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-gh btn-xs" onclick="closeOv('ov-edit-user')">Cancelar</button>
+      <button class="btn btn-acc btn-xs" onclick="saveEditUser()">&#x1F4BE; Salvar alterações</button>
+    </div>
+  </div>
+</div>
 
-  
-    
-      Editar Usuário
-      &#x2715;
-    
-    
-      
-      Nome completo *
-      Email (login) *
-      
-        Nova senha (deixe em branco para manter a atual)
-        
-      
-      
-        Perfil de acesso
-        
-          Visualizador (acesso limitado)
-          Administrador (acesso total)
-        
-      
-      
-        <div id="eu-roles" style="margin-bottom:10px"></div>
-        Campos que pode alterar:
-        
-          &#x1F4C5; Pago Em
-          &#x1F4B0; Valor
-          &#x1F4DD; Observa&#231;&#245;es
-          &#x1F6A6; Status
-          &#x1F4C6; M&#234;s Pgto
-          &#x1F4C4; Data In&#237;cio
-        
-      
-      
-        &#128161; Se alterar o email ou senha, o usuário precisará usar as novas credenciais no próximo acesso.
-      
-      
-    
-    
-      Cancelar
-      &#x1F4BE; Salvar alterações
-    
-  
+<!-- CREDENCIAIS DO NOVO USUÁRIO -->
+<div class="ov" id="ov-cred" onclick="ovClick(event,'ov-cred')">
+  <div class="modal" style="max-width:460px;">
+    <div class="mhdr">
+      <h2>&#x2705; Usuário cadastrado!</h2>
+      <button class="mclose" onclick="closeOv('ov-cred')">&#x2715;</button>
+    </div>
+    <div class="mbody">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">
+        Anote ou copie as credenciais abaixo e repasse para o usuário. Ele precisará usar esses dados para entrar no sistema.
+      </p>
+      <div style="background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--rs);padding:16px;margin-bottom:16px;">
+        <div style="margin-bottom:10px;"><span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;">Nome</span><div style="font-size:15px;font-weight:600;margin-top:3px;" id="cred-nome"></div></div>
+        <div style="margin-bottom:10px;"><span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;">Email (login)</span><div style="font-size:15px;font-weight:600;margin-top:3px;color:var(--accent);" id="cred-email"></div></div>
+        <div style="margin-bottom:10px;"><span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;">Senha</span><div style="font-size:15px;font-weight:600;margin-top:3px;color:var(--accent);" id="cred-senha"></div></div>
+        <div style="margin-bottom:10px;"><span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;">Perfil</span><div style="font-size:13px;margin-top:3px;" id="cred-role"></div></div>
+        <div><span style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;">Campos liberados</span><div style="font-size:12px;margin-top:5px;line-height:1.8;" id="cred-perms"></div></div>
+      </div>
+      <div style="background:var(--gbg);border:1px solid rgba(82,196,122,.3);border-radius:var(--rs);padding:12px 14px;font-size:12px;color:var(--green);line-height:1.6;">
+        <b>&#x2705; Sincronização automática:</b> Basta enviar o arquivo <b>salim_v_final.html</b> para o usuário. Ao abrir, ele entra com o email e senha cadastrados e os dados já estarão atualizados automaticamente via Firebase — sem precisar importar nada.
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-gh btn-xs" onclick="closeOv('ov-cred')">Fechar</button>
 
+    </div>
+  </div>
+</div>
 
+<div id="toast"></div>
 
-
-  
-    
-      &#x2705; Usuário cadastrado!
-      &#x2715;
-    
-    
-      
-        Anote ou copie as credenciais abaixo e repasse para o usuário. Ele precisará usar esses dados para entrar no sistema.
-      
-      
-        Nome
-        Email (login)
-        Senha
-        Perfil
-        Campos liberados
-      
-      
-        &#x2705; Sincronização automática: Basta enviar o arquivo salim_v_final.html para o usuário. Ao abrir, ele entra com o email e senha cadastrados e os dados já estarão atualizados automaticamente via Firebase — sem precisar importar nada.
-      
-    
-    
-      Fechar
-
-    
-  
-
-
-
-
-
+<script>
 // ══════════════════════════════════════════════════════
 // DADOS ORIGINAIS
 // ══════════════════════════════════════════════════════
-<script>
-
 const SEED=[
   {id:1,cliente:"KNIT",mes_pagamento:"AGOSTO",data_inicio:"2024-07-22",pago_em:"2025-08-12",valor:"930",obs:"03 LOJAS NEGOCIADA COM SALIM QUE PAGAM 01 (02 NÃO TEM LOJA FISICA) SOBRE 1 SALARIO E MEIO DE SP",status:"ativo"},
   {id:2,cliente:"KNITWEAR LOGAN",mes_pagamento:"",data_inicio:"",pago_em:"2025-08-12",valor:"",obs:"MESMA KNIT",status:"ativo"},
@@ -1171,7 +1240,7 @@ function showLoading(msg='Carregando...'){
     el=document.createElement('div');
     el.id='loading-screen';
     el.style.cssText='position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;';
-    el.innerHTML='Salim &amp; Salim@keyframes spin{to{transform:rotate(360deg)}}';
+    el.innerHTML='<div style="font-family:DM Serif Display,serif;font-size:24px;color:var(--accent)">Salim &amp; Salim</div><div id="loading-msg" style="font-size:13px;color:var(--muted)"></div><div style="width:40px;height:40px;border:3px solid var(--bdr);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite"></div><style>@keyframes spin{to{transform:rotate(360deg)}}</style>';
     document.body.appendChild(el);
   }
   document.getElementById('loading-msg').textContent=msg;
@@ -1216,16 +1285,10 @@ async function doLogin(){
   function tryLogin(users){
     const u=users.find(x=>(x.email||'').toLowerCase()===em&&x.senha===pw);
     if(!u)return false;
-    // Garante backward compat: se tem roles[], usa; senão converte role string → array
-    if(!Array.isArray(u.roles)) {
-      u.roles = u.role ? [u.role] : ['viewer'];
-    }
-    // role primário = primeiro da lista (para exibição no badge)
-    if(!u.role) u.role = u.roles[0] || 'viewer';
     CU=u;err.style.display='none';err.style.color='';
     if(btn){btn.textContent='Entrar';btn.disabled=false;}
     if(_unsubscribes.length===0)startListeners();
-    addLog('Login','Sessão iniciada');initApp();
+    addLog('Login','Sessão iniciada');initApp();if(typeof initComprovantes==='function')setTimeout(initComprovantes,500);
     return true;
   }
   // Tenta cache primeiro
@@ -1285,10 +1348,8 @@ function initApp(){
   document.getElementById('app').classList.add('show');
   document.getElementById('cur-nome').textContent=CU.nome;
   const rb=document.getElementById('cur-role-badge');
-  const rolesLabels={'admin':'Admin','pagador':'Pagador','baixador':'Baixador','viewer':'Viewer'};
-  const rolesArr=Array.isArray(CU.roles)?CU.roles:[CU.role||'viewer'];
-  rb.textContent=rolesArr.map(r=>rolesLabels[r]||r).join(' + ');
-  rb.className='trole '+(isAdmin()?'admin':'viewer');
+  rb.textContent=CU.role==='admin'?'Admin':'Visualizador';
+  rb.className='trole '+(CU.role==='admin'?'admin':'viewer');
   const isA=CU.role==='admin';
 
   // Botões só para admin
@@ -1311,86 +1372,8 @@ function initApp(){
 
   renderTable();
   updateMobileNav('clientes');
-  if(typeof initLotes==='function')initLotes();
-
-  // Mostra versão atual imediatamente
-  const versaoAtual=document.querySelector('meta[name="app-version"]')?.content||'—';
-  const vBar=document.getElementById('version-info');
-  if(vBar)vBar.innerHTML=`📦 Versão ${versaoAtual} &nbsp;·&nbsp; Login: ${new Date().toLocaleString('pt-BR')} &nbsp;·&nbsp; 🔄 Verificando atualização...`;
-
-  // Notificação toast imediata
-  toast('🔄 Verificando atualizações...','ok');
-
-  // Verificar atualização ao logar
-  setTimeout(verificarAtualizacao, 1500);
-  // Popup de vencimentos do dia
-  setTimeout(checkVencimentosHoje, 4000);
-}
-
-// ── AUTO-ATUALIZAÇÃO ──
-async function verificarAtualizacao(){
-  const vBar=document.getElementById('version-info');
-  const uStatus=document.getElementById('update-status');
-  const versaoAtual=document.querySelector('meta[name="app-version"]')?.content||'0';
-
-  // Atualiza barra com info de login
-  const tsLogin=new Date().toLocaleString('pt-BR');
-  if(vBar)vBar.innerHTML=`📦 Versão ${versaoAtual} &nbsp;·&nbsp; Login: ${tsLogin} &nbsp;·&nbsp; Usuário: ${CU?.nome||''}`;
-
-  const ghToken=await getGHToken();
-  if(!ghToken){
-    if(uStatus)uStatus.innerHTML=`⚙️ Configurar token para auto-atualização`;
-    return;
-  }
-
-  try{
-    if(uStatus)uStatus.innerHTML=`🔄 Verificando...`;
-    const res=await fetch(
-      `https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}?ref=${GH_BRANCH}&t=${Date.now()}`,
-      {headers:{'Authorization':`token ${ghToken}`,'Accept':'application/vnd.github.v3+json'}}
-    );
-    if(!res.ok)throw new Error('sem acesso');
-    const data=await res.json();
-    const htmlGH=decodeURIComponent(escape(atob(data.content.replace(/\n/g,''))));
-    const matchGH=htmlGH.match(/<meta name="app-version" content="([^"]+)"/);
-    const versaoGH=matchGH?matchGH[1]:'0';
-
-    if(versaoGH!==versaoAtual&&versaoGH!=='0'){
-      // Nova versão — atualiza automaticamente sem perguntar
-      if(uStatus)uStatus.innerHTML=`🆕 v${versaoGH} — Atualizando...`;
-      if(vBar)vBar.innerHTML=`📦 Versão ${versaoAtual} → ${versaoGH} &nbsp;·&nbsp; Login: ${tsLogin} &nbsp;·&nbsp; Usuário: ${CU?.nome||''}`;
-      toast(`🔄 Nova versão ${versaoGH} detectada! Atualizando automaticamente...`,'ok');
-      // Guarda sessão e recarrega após 2s
-      try{sessionStorage.setItem('salim_cu',JSON.stringify(CU));sessionStorage.setItem('salim_update_ts',new Date().toISOString());}catch(e){}
-      setTimeout(()=>{ window.location.href=window.location.href.split('?')[0]+'?v='+Date.now(); },2000);
-    } else {
-      if(uStatus)uStatus.innerHTML=`✅ Atualizado &nbsp;·&nbsp; última verificação: ${new Date().toLocaleTimeString('pt-BR')}`;
-    }
-  }catch(e){
-    if(uStatus)uStatus.innerHTML=`⚠️ Token inválido — clique para reconfigurar`;
-    console.warn('Verificação falhou:',e.message);
-  }
-}
-
-async function configurarToken(){
-  const atual=await getGHToken();
-  const novo=prompt(`🔑 Cole seu GitHub Token (ghp_...):\n\nToken atual: ${atual?atual.slice(0,8)+'...':'(não configurado)'}\n\nDeixe em branco para remover.`);
-  if(novo===null)return;
-  if(novo.trim()){
-    await salvarGHToken(novo.trim());
-    toast('Token salvo para todos os usuários! Verificando...','ok');
-    setTimeout(verificarAtualizacao,500);
-  } else {
-    localStorage.removeItem('gh_deploy_token');
-    sessionStorage.removeItem('_ght');
-    try{await db.setDoc('config','gh',{token:'',updatedAt:new Date().toISOString()});}catch(e){}
-    toast('Token removido.','ok');
-  }
-}
-
-function aplicarAtualizacao(){
-  try{sessionStorage.setItem('salim_cu',JSON.stringify(CU));}catch(e){}
-  window.location.href=window.location.href.split('?')[0]+'?v='+Date.now();
+  // Popup de vencimentos do dia (após dados carregarem)
+  setTimeout(checkVencimentosHoje, 1500);
 }
 
 // ── HELPERS ──
@@ -1409,78 +1392,35 @@ function fD(d){if(!d||d.length<8)return'—';if(/^\d{4}-\d{2}-\d{2}/.test(d)){co
 function nxtId(arr){return arr.length>0?Math.max(...arr.map(x=>x.id||0))+1:1;}
 
 // ── PUBLICAR NO GITHUB ──
+const GH_TOKEN='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';
 const GH_REPO='iconeautomacao/golden-halva-e966a9';
 const GH_FILE='index.html';
 const GH_BRANCH='main';
-// Token salvo no Firebase (collection 'config', doc 'gh') — funciona em qualquer computador
-async function getGHToken(){
-  // Tenta cache local primeiro (evita query extra)
-  const cached=sessionStorage.getItem('_ght');
-  if(cached)return cached;
-  try{
-    const doc=await db.getDoc('config','gh');
-    if(doc&&doc.token){sessionStorage.setItem('_ght',doc.token);return doc.token;}
-  }catch(e){}
-  return localStorage.getItem('gh_deploy_token')||'';
-}
-
-async function salvarGHToken(token){
-  try{
-    await db.setDoc('config','gh',{token,updatedAt:new Date().toISOString(),updatedBy:CU?.nome||''});
-    sessionStorage.setItem('_ght',token);
-    localStorage.setItem('gh_deploy_token',token);
-  }catch(e){
-    localStorage.setItem('gh_deploy_token',token);
-  }
-}
 
 async function publicarNoGitHub(){
   if(CU?.role!=='admin'){toast('Apenas o admin pode publicar atualizações.','err');return;}
-  let token=await getGHToken();
-  if(!token){
-    token=prompt('🔑 Cole seu GitHub Token (ghp_...):\n\nEle será salvo para todos os usuários.');
-    if(!token)return;
-    await salvarGHToken(token.trim());
-    token=token.trim();
-  }
-  if(!confirm('🚀 Publicar nova versão no GitHub?\n\nIsso irá:\n• Fazer backup automático dos dados\n• Incrementar a versão do sistema\n• Enviar o sistema atualizado ao GitHub\n• Netlify atualizará em ~30 segundos\n• Todos os usuários receberão a atualização no próximo login'))return;
+  if(!confirm('🚀 Publicar nova versão no GitHub?\n\nIsso irá:\n• Fazer backup automático dos dados\n• Enviar o sistema atualizado ao GitHub\n• Netlify atualizará em ~30 segundos'))return;
 
   const btn=document.getElementById('btn-publicar');
   if(btn){btn.disabled=true;btn.textContent='⏳ Publicando...';}
 
   try{
-    // 1. Backup automático silencioso antes de publicar
+    // 1. Backup automático antes de publicar
     await exportDB(true);
 
-    // 2. Pega SHA atual do arquivo no GitHub
+    // 2. Pega SHA atual do arquivo no GitHub (necessário para atualizar)
     showLoading('Verificando repositório...');
     const shaRes=await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}?ref=${GH_BRANCH}`,{
-      headers:{'Authorization':`token ${token}`,'Accept':'application/vnd.github.v3+json'}
+      headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json'}
     });
     if(!shaRes.ok)throw new Error('Não foi possível acessar o repositório. Verifique o token.');
     const shaData=await shaRes.json();
     const sha=shaData.sha;
 
-    // 3. Lê HTML atual e incrementa a versão
-    showLoading('Preparando nova versão...');
-    const htmlRes=await fetch(window.location.href+'?nocache='+Date.now());
-    let htmlContent=await htmlRes.text();
-
-    // Gera nova versão: aaaa.mm.dd.seq
-    const hoje=new Date();
-    const base=`${hoje.getFullYear()}.${String(hoje.getMonth()+1).padStart(2,'0')}.${String(hoje.getDate()).padStart(2,'0')}`;
-    const versaoAtual=document.querySelector('meta[name="app-version"]')?.content||'';
-    let seq=1;
-    if(versaoAtual.startsWith(base)){
-      const partes=versaoAtual.split('.');
-      seq=(parseInt(partes[3]||'0')+1);
-    }
-    const novaVersao=`${base}.${String(seq).padStart(3,'0')}`;
-    htmlContent=htmlContent.replace(
-      //,
-      ``
-    );
-
+    // 3. Lê o HTML atual desta página
+    showLoading('Preparando arquivos...');
+    const htmlRes=await fetch(window.location.href);
+    const htmlContent=await htmlRes.text();
     const encoded=btoa(unescape(encodeURIComponent(htmlContent)));
 
     // 4. Envia para o GitHub
@@ -1488,9 +1428,9 @@ async function publicarNoGitHub(){
     const ts=new Date().toLocaleString('pt-BR');
     const pushRes=await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}`,{
       method:'PUT',
-      headers:{'Authorization':`token ${token}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+      headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
       body:JSON.stringify({
-        message:`✅ v${novaVersao} — ${ts} — por ${CU.nome}`,
+        message:`✅ Atualização automática — ${ts} — por ${CU.nome}`,
         content:encoded,
         sha:sha,
         branch:GH_BRANCH
@@ -1502,8 +1442,8 @@ async function publicarNoGitHub(){
     }
 
     hideLoading();
-    toast(`🚀 v${novaVersao} publicada! Netlify atualizará em ~30 segundos.`,'ok');
-    addLog('Publicou atualização',`v${novaVersao} → GitHub/Netlify`);
+    toast('🚀 Publicado! O Netlify irá atualizar o sistema em ~30 segundos.','ok');
+    addLog('Publicou atualização','GitHub → Netlify');
 
   }catch(e){
     hideLoading();
@@ -1559,21 +1499,21 @@ function checkVencimentosHoje(){
   const popup=document.createElement('div');
   popup.id='popup-venc';
   popup.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px;';
-  popup.innerHTML=`
-    
-      ⚠️ Vencimentos de Hoje${hoje.toLocaleDateString('pt-BR')} — ${cli.length} cliente${cli.length>1?'s':''}
-      ✕
-    
-    
-      ${cli.map(c=>`
-        ${c.cliente}${(c.mes_pagamento||'').toUpperCase()||'—'}
-        ${pV(c.valor)?fV(pV(c.valor)):'—'}
-      `).join('')}
-    
-    
-      Entendido
-    
-  `;
+  popup.innerHTML=`<div style="background:var(--surf);border:1px solid var(--bdr);border-radius:14px;max-width:480px;width:100%;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.4);">
+    <div style="padding:16px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;">
+      <div><div style="font-weight:600;font-size:15px;">⚠️ Vencimentos de Hoje</div><div style="font-size:12px;color:var(--muted);">${hoje.toLocaleDateString('pt-BR')} — ${cli.length} cliente${cli.length>1?'s':''}</div></div>
+      <button onclick="document.getElementById('popup-venc').remove()" style="background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;padding:4px 8px;">✕</button>
+    </div>
+    <div style="overflow-y:auto;padding:12px 16px;flex:1;">
+      ${cli.map(c=>`<div style="padding:10px;border-bottom:1px solid rgba(100,100,120,.2);display:flex;justify-content:space-between;align-items:center;">
+        <div><div style="font-weight:500;font-size:13px;">${c.cliente}</div><div style="font-size:11px;color:var(--muted);">${(c.mes_pagamento||'').toUpperCase()||'—'}</div></div>
+        <div style="font-weight:600;color:var(--yellow);font-size:14px;">${pV(c.valor)?fV(pV(c.valor)):'—'}</div>
+      </div>`).join('')}
+    </div>
+    <div style="padding:12px 16px;border-top:1px solid var(--bdr);">
+      <button onclick="document.getElementById('popup-venc').remove()" style="width:100%;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Entendido</button>
+    </div>
+  </div>`;
   document.body.appendChild(popup);
 }
 
@@ -1640,33 +1580,12 @@ function renderTable(){
 
   const filtered=sortData(getFiltered(cli));
   document.getElementById('tot-n').textContent=filtered.length;
-  // Regra: 1º pagamento ocorre no mês seguinte aos 12 meses após data_inicio
-  // Ex: data_inicio 15/01/2026 → paga a partir de 02/2027 (mês 13)
-  // Compara apenas mês/ano, ignora o dia
-  function _clienteJaPaga(c) {
-    if(!c.data_inicio) return true;
-    const parts = (c.data_inicio||'').split('-');
-    if(parts.length < 2) return true;
-    const anoIni = parseInt(parts[0], 10);
-    const mesIni = parseInt(parts[1], 10);
-    if(isNaN(anoIni) || isNaN(mesIni)) return true;
-    // Adiciona 13 meses ao data_inicio (12 meses + 1)
-    const totalMeses = (anoIni * 12 + mesIni - 1) + 13;
-    const anoPaga = Math.floor(totalMeses / 12);
-    const mesPaga = (totalMeses % 12) + 1;
-    // Mês/ano atual
-    const agora = new Date();
-    const anoAtual = agora.getFullYear();
-    const mesAtual = agora.getMonth() + 1;
-    // Compara: mesAnoAtual >= mesAnoPagamento
-    return (anoAtual > anoPaga) || (anoAtual === anoPaga && mesAtual >= mesPaga);
-  }
-  const tAP=filtered.filter(c=>c.status!=='cancelado'&&_clienteJaPaga(c)).reduce((s,c)=>s+pV(c.valor),0);
-  const tG=filtered.filter(c=>_clienteJaPaga(c)).reduce((s,c)=>s+pV(c.valor),0);
+  const tAP=filtered.filter(c=>c.status!=='cancelado').reduce((s,c)=>s+pV(c.valor),0);
+  const tG=filtered.reduce((s,c)=>s+pV(c.valor),0);
   document.getElementById('tot-ap').textContent=fV(tAP)||'R$ 0,00';
   document.getElementById('tot-g').textContent=fV(tG)||'R$ 0,00';
 
-  const isA=isAdmin();
+  const isA=CU?.role==='admin';
 
   // mobile cards
   const filtered2=sortData(getFiltered(cli));
@@ -1679,26 +1598,26 @@ function renderTable(){
     const pl=c.status==='ativo'?'Ativo':c.status==='cancelado'?'Cancelado':'Pendente';
     const nc=c.status==='cancelado'?'td-name cancel':c.status==='pendente'?'td-name pend':'td-name';
     const btns=isA
-      ?`
-          ✏️
-          📅
-          🗑️
-        `
-      :`
-          💳
-          📅
-        `;
-    return`
-      ${c.cliente||''}
-      ${(c.mes_pagamento||'').toUpperCase()||'—'}
-      ${fD(c.data_inicio)}
-      ${fD(c.pago_em)}
-      ${c.vencimento||'—'}
-      ${pV(c.valor)?fV(pV(c.valor)):'—'}
-      ${pl}
-      ${c.obs||''}
-      ${btns}
-    `;
+      ?`<div class="act-btns">
+          <button class="act-btn" onclick="openModal(${c.id})" title="Editar">✏️</button>
+          <button class="act-btn" onclick="openHist(${c.id})" title="Histórico de alterações">📅</button>
+          <button class="act-btn del" onclick="openDel(${c.id})" title="Excluir">🗑️</button>
+        </div>`
+      :`<div class="act-btns">
+          <button class="act-btn" onclick="openPago(${c.id})" title="Registrar pagamento">💳</button>
+          <button class="act-btn" onclick="openHist(${c.id})" title="Histórico">📅</button>
+        </div>`;
+    return`<tr>
+      <td><span class="${nc}">${c.cliente||''}</span></td>
+      <td class="td-mes">${(c.mes_pagamento||'').toUpperCase()||'—'}</td>
+      <td class="td-date">${fD(c.data_inicio)}</td>
+      <td class="td-date">${fD(c.pago_em)}</td>
+      <td class="td-date">${c.vencimento||'—'}</td>
+      <td class="td-val">${pV(c.valor)?fV(pV(c.valor)):'—'}</td>
+      <td><span class="pill ${pc}">${pl}</span></td>
+      <td class="td-obs" title="${(c.obs||'').replace(/"/g,'&quot;')}">${c.obs||''}</td>
+      <td>${btns}</td>
+    </tr>`;
   }).join('');
 }
 
@@ -1784,7 +1703,7 @@ async function saveCli(){
   if(saveBtn){if(saveBtn.disabled)return;saveBtn.disabled=true;saveBtn.textContent='Salvando...';}
   const nome=document.getElementById('f-nome').value.trim();
   if(!nome){toast('Informe o nome do cliente.','err');if(saveBtn){saveBtn.disabled=false;saveBtn.textContent='✔ Salvar';}return;}
-  const isA=isAdmin();
+  const isA=CU?.role==='admin';
   const cli=getClientes();
   // Monta obs: admin salva obs_admin; viewer concatena nova obs abaixo
   let obs_admin='', obs_viewer_nova='';
@@ -1956,24 +1875,21 @@ function openHist(id){
   document.getElementById('hist-title').textContent=`Histórico — ${c?.cliente||''}`;
   const body=document.getElementById('hist-body');
   if(!h.length){
-    body.innerHTML=`Nenhuma alteração registrada para este cliente.`;
+    body.innerHTML=`<p style="padding:24px;text-align:center;color:var(--muted);">Nenhuma alteração registrada para este cliente.</p>`;
   } else {
     // Formata valor: se for data ISO (yyyy-mm-dd), converte para BR
     function fmtVal(v){
-      if(!v||v==='(vazio)')return v||'(vazio)';
-      // Data ISO yyyy-mm-dd
+      if(!v)return v;
       if(/^\d{4}-\d{2}-\d{2}/.test(v))return fD(v);
-      // NaN/NaN ou inválido — tenta extrair mm/yyyy válido
-      if(/NaN/.test(v))return '(inválido)';
       return v;
     }
     body.innerHTML=h.map(e=>{
       let dtStr='';
       try{const dt=new Date(e.ts);dtStr=dt.toLocaleDateString('pt-BR')+' '+dt.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}catch(err){dtStr=e.ts||'';}
-      return`
-        ${dtStr} — por ${e.nome} (${e.email})
-        ${e.campo}: ${fmtVal(e.antes)} → ${fmtVal(e.depois)}
-      `;
+      return`<div class="hentry">
+        <div class="hdate">${dtStr} — por <b>${e.nome}</b> (${e.email})</div>
+        <div class="hchange"><span class="hfield">${e.campo}:</span> <span class="hold">${fmtVal(e.antes)}</span> → <span class="hnew">${fmtVal(e.depois)}</span></div>
+      </div>`;
     }).join('');
   }
   openOv('ov-hist');
@@ -2008,10 +1924,10 @@ function renderCards(filtered){
   if(!cards)return;
   const isA=CU?.role==='admin';
   if(!filtered.length){
-    cards.innerHTML=`
-      🔍
-      Nenhum cliente encontrado.
-    `;
+    cards.innerHTML=`<div style="text-align:center;padding:40px 20px;color:var(--muted);">
+      <div style="font-size:40px;margin-bottom:10px;">🔍</div>
+      <p>Nenhum cliente encontrado.</p>
+    </div>`;
     return;
   }
   cards.innerHTML=filtered.map(c=>{
@@ -2019,27 +1935,27 @@ function renderCards(filtered){
     const nc=c.status==='cancelado'?'cancel':c.status==='pendente'?'pend':'';
     const pc=c.status==='ativo'?'pill-act':c.status==='cancelado'?'pill-can':'pill-pen';
     const pl=c.status==='ativo'?'✅ Ativo':c.status==='cancelado'?'🔴 Cancelado':'⏳ Pendente';
-    const obsHtml=c.obs?`${c.obs}`:'';
+    const obsHtml=c.obs?`<div class="cc-obs">${c.obs}</div>`:'';
     const adminBtns=isA?`
-      ✏️ Editar
-      📅 Histórico
-      🗑️`
-    :`💳 Registrar Pgto
-      📅 Histórico`;
-    return`
-      
-        ${c.cliente||''}
-        ${pl}
-      
-      
-        Mês Pgto${(c.mes_pagamento||'').toUpperCase()||'—'}
-        Valor${pV(c.valor)?fV(pV(c.valor)):'—'}
-        Recebimento${fD(c.pago_em)}
-        Vencimento${c.vencimento||'—'}
-      
+      <button class="cc-btn primary" onclick="openModal(${c.id})">✏️ Editar</button>
+      <button class="cc-btn" onclick="openHist(${c.id})">📅 Histórico</button>
+      <button class="cc-btn danger" onclick="openDel(${c.id})">🗑️</button>`
+    :`<button class="cc-btn primary" onclick="openPago(${c.id})">💳 Registrar Pgto</button>
+      <button class="cc-btn" onclick="openHist(${c.id})">📅 Histórico</button>`;
+    return`<div class="cli-card ${sc}">
+      <div class="cc-top">
+        <div class="cc-nome ${nc}">${c.cliente||''}</div>
+        <span class="pill ${pc}">${pl}</span>
+      </div>
+      <div class="cc-grid">
+        <div class="cc-field"><span class="cc-label">Mês Pgto</span><span class="cc-value">${(c.mes_pagamento||'').toUpperCase()||'—'}</span></div>
+        <div class="cc-field"><span class="cc-label">Valor</span><span class="cc-value val">${pV(c.valor)?fV(pV(c.valor)):'—'}</span></div>
+        <div class="cc-field"><span class="cc-label">Recebimento</span><span class="cc-value">${fD(c.pago_em)}</span></div>
+        <div class="cc-field"><span class="cc-label">Vencimento</span><span class="cc-value" style="${c.vencimento?'color:var(--yellow);font-weight:600;':''}">${c.vencimento||'—'}</span></div>
+      </div>
       ${obsHtml}
-      ${adminBtns}
-    `;
+      <div class="cc-actions">${adminBtns}</div>
+    </div>`;
   }).join('');
 }
 
@@ -2058,7 +1974,7 @@ function syncMobileFilters(){
 }
 
 function updateMobileNav(s){
-  ['clientes','log','usuarios'].forEach(x=>{
+  ['clientes','log','usuarios','comprovantes'].forEach(x=>{
     const el=document.getElementById('bnav-'+x);
     if(el)el.classList.toggle('on',x===s);
   });
@@ -2075,20 +1991,20 @@ function updateMobileNav(s){
 // ── LOG ──
 async function renderLog(){
   if(CU?.role!=='admin'){
-    document.getElementById('log-body').innerHTML='Acesso restrito a administradores.';
+    document.getElementById('log-body').innerHTML='<p style="padding:24px;text-align:center;color:var(--muted);">Acesso restrito a administradores.</p>';
     return;
   }
   const q=(document.getElementById('log-srch').value||'').toLowerCase();
   const logs=getLogs().filter(l=>!q||(l.nome+l.email+l.acao+l.det).toLowerCase().includes(q));
   const body=document.getElementById('log-body');
-  if(!logs.length){body.innerHTML=`Nenhum registro encontrado.`;return;}
+  if(!logs.length){body.innerHTML=`<p style="padding:24px;text-align:center;color:var(--muted);">Nenhum registro encontrado.</p>`;return;}
   body.innerHTML=logs.map(l=>{
-    const rp=l.role==='admin'?`admin`:`(viewer)`;
-    return`
-      ${new Date(l.ts).toLocaleString('pt-BR')}
-      ${l.nome}${rp}
-      ${l.acao}${l.det?' — '+l.det:''}
-    `;
+    const rp=l.role==='admin'?`<span class="pill pill-pen" style="font-size:10px;margin-left:4px;">admin</span>`:`<span style="font-size:10px;color:var(--muted);margin-left:4px;">(viewer)</span>`;
+    return`<div class="log-row">
+      <div class="log-ts">${new Date(l.ts).toLocaleString('pt-BR')}</div>
+      <div class="log-user">${l.nome}${rp}</div>
+      <div class="log-act"><b>${l.acao}</b>${l.det?' — '+l.det:''}</div>
+    </div>`;
   }).join('');
 }
 
@@ -2101,60 +2017,25 @@ async function exportLogXLS(){
 }
 
 
-// Renderiza checkboxes de roles no modal de cadastro/edição de usuário
-function renderRolesCheckboxes(containerId, selecionados=[]) {
-  const roles = [
-    {id:'viewer', label:'👁️ Visualizador', desc:'Vê clientes e registra pagamentos'},
-    {id:'pagador', label:'📎 Pagador', desc:'Envia comprovantes em lote'},
-    {id:'baixador', label:'✅ Baixador', desc:'Confirma e dá baixa nos pagamentos'},
-    {id:'admin', label:'⭐ Administrador', desc:'Acesso total ao sistema'},
-  ];
-  const div = document.getElementById(containerId);
-  if(!div) return;
-  div.innerHTML = '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;padding-top:8px;border-top:1px solid var(--bdr)">Perfis de acesso (pode marcar mais de um):</div>'
-    + '<div style="display:flex;flex-direction:column;gap:8px">'
-    + roles.map(r =>
-      '<label class="perm-opt" style="flex-direction:column;align-items:flex-start;gap:3px;padding:10px 12px">'
-      + '<div style="display:flex;align-items:center;gap:8px;width:100%">'
-      + '<input type="checkbox" id="'+containerId+'-role-'+r.id+'"'+(selecionados.includes(r.id)?' checked':'')+'>'
-      + '<span style="font-weight:600">'+r.label+'</span></div>'
-      + '<div style="font-size:11px;color:var(--muted);margin-left:24px">'+r.desc+'</div>'
-      + '</label>'
-    ).join('')
-    + '</div>';
-}
-
-// Lê roles marcados de um container de checkboxes
-function getRolesFromCheckboxes(containerId) {
-  const roles = ['viewer','pagador','baixador','admin'];
-  return roles.filter(r => {
-    const el = document.getElementById(containerId+'-role-'+r);
-    return el && el.checked;
-  });
-}
-
 async function doNovoUser(){
   const nome=document.getElementById('nu-nome').value.trim();
   const em=document.getElementById('nu-email').value.trim().toLowerCase();
   const pw=document.getElementById('nu-pass').value;
+  const role=document.getElementById('nu-role').value;
   const err=document.getElementById('nu-err');
   err.style.display='none';
   if(!nome||!em||!pw){err.style.display='block';err.textContent='Preencha todos os campos obrigatórios.';return;}
   if(pw.length<4){err.style.display='block';err.textContent='Senha deve ter pelo menos 4 caracteres.';return;}
-  // Lê roles dos checkboxes
-  const roles=getRolesFromCheckboxes('nu-roles');
-  if(!roles.length){err.style.display='block';err.textContent='Selecione pelo menos um perfil.';return;}
-  const role=roles.includes('admin')?'admin':roles[0]; // role primário para compatibilidade
   const users=getUsers();
   if(users.find(u=>u.email.toLowerCase()===em)){err.style.display='block';err.textContent='Este email já está cadastrado.';return;}
   const CAMPOS=['pago_em','valor','obs','status','mes_pagamento','data_inicio'];
   let permissoes={};
-  if(roles.includes('admin')){CAMPOS.forEach(c=>permissoes[c]=true);}
+  if(role==='admin'){CAMPOS.forEach(c=>permissoes[c]=true);}
   else{CAMPOS.forEach(c=>{const el=document.getElementById('perm-'+c);permissoes[c]=el?el.checked:false;});}
-  const nu={id:'u'+Date.now(),nome,email:em,senha:pw,role,roles,permissoes};
+  const nu={id:'u'+Date.now(),nome,email:em,senha:pw,role,permissoes};
   users.push(nu);
   await saveUsers(users);
-  addLog('Cadastrou usuário',nome+' ('+em+') — '+roles.join('+'));
+  addLog('Cadastrou usuário',nome+' ('+em+') — '+role);
   document.getElementById('nu-nome').value='';
   document.getElementById('nu-email').value='';
   document.getElementById('nu-pass').value='';
@@ -2173,27 +2054,27 @@ async function renderUsuarios(){
   if(!cont)return;
   cont.innerHTML=users.map(u=>{
     const ini=(u.nome||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
-    const rolesU=Array.isArray(u.roles)?u.roles:[u.role||'viewer'];
-    const isAdminU=rolesU.includes('admin');
-    const rolesLabelsU={'admin':'⭐ Admin','pagador':'📎 Pagador','baixador':'✅ Baixador','viewer':'👁️ Viewer'};
-    const rl='<div style="display:flex;flex-wrap:wrap;gap:4px">'+rolesU.map(r=>'<span class="pill '+(r==='admin'?'pill-pen':r==='pagador'?'pill-act':r==='baixador'?'pill-act':'')+'" style="font-size:11px">'+(rolesLabelsU[r]||r)+'</span>').join('')+'</div>';
+    const isAdminU=u.role==='admin';
+    const rl=isAdminU
+      ?`<span class="pill pill-pen" style="font-size:11px;">Administrador</span>`
+      :`<span class="pill" style="font-size:11px;background:var(--surf3);color:var(--muted);">Visualizador</span>`;
     const isSelf=CU&&u.id===CU.id;
     const canEdit=CU?.role==='admin'||isSelf;
-    const editBtn=canEdit?`✏️`:'';
-    const delBtn=(!isSelf&&CU?.role==='admin')?`🗑️`:'';
+    const editBtn=canEdit?`<button class="act-btn" onclick="openEditUser('${u.id}')" title="Editar">✏️</button>`:'';
+    const delBtn=(!isSelf&&CU?.role==='admin')?`<button class="act-btn del" onclick="delUser('${u.id}')" title="Remover">🗑️</button>`:'';
     const permLine=(!isAdminU&&u.permissoes)
-      ?`Pode alterar: ${Object.keys(u.permissoes).filter(k=>u.permissoes[k]).map(k=>PLABELS[k]||k).join(', ')||'nenhum campo'}`:'';
-    return`
-      
-        ${ini}
-        
-          ${u.nome}${isSelf?' (você)':''}
-          ${u.email}
+      ?`<div style="font-size:10px;color:var(--accent);margin-top:2px;">Pode alterar: ${Object.keys(u.permissoes).filter(k=>u.permissoes[k]).map(k=>PLABELS[k]||k).join(', ')||'nenhum campo'}</div>`:'';
+    return`<div class="ucard">
+      <div class="ucard-l">
+        <div class="uavat" style="${isAdminU?'background:var(--ybg);color:var(--yellow);':''}">${ini}</div>
+        <div style="min-width:0;">
+          <div class="uname">${u.nome}${isSelf?' <span style="color:var(--muted);font-size:11px;">(você)</span>':''}</div>
+          <div class="uemail">${u.email}</div>
           ${permLine}
-        
-      
-      ${rl}${editBtn}${delBtn}
-    `;
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">${rl}<div class="act-btns">${editBtn}${delBtn}</div></div>
+    </div>`;
   }).join('');
 }
 
@@ -2206,18 +2087,11 @@ async function openEditUser(uid){
   document.getElementById('eu-email').value=u.email||'';
   document.getElementById('eu-pass').value='';
   document.getElementById('eu-role').value=u.role||'viewer';
-  const canEditRole=isAdmin()&&CU?.id!==uid;
-  // Oculta row de role antigo, mostra checkboxes de roles
-  const roleRow=document.getElementById('eu-role-row');
-  if(roleRow)roleRow.style.display='none'; // substituído por checkboxes
-  // Renderiza checkboxes de roles com os valores atuais
-  const rolesAtuais=Array.isArray(u.roles)?u.roles:[u.role||'viewer'];
-  renderRolesCheckboxes('eu-roles', rolesAtuais);
-  const rolesDiv=document.getElementById('eu-roles');
-  if(rolesDiv)rolesDiv.style.display=canEditRole?'':'none';
+  const showRole=CU?.role==='admin'&&CU?.id!==uid;
+  document.getElementById('eu-role-row').style.display=showRole?'':'none';
   const permSec=document.getElementById('eu-perm-section');
   if(permSec){
-    permSec.style.display=(rolesAtuais.includes('admin')||!canEditRole)?'none':'block';
+    permSec.style.display=(u.role==='admin'||!showRole)?'none':'block';
     ['pago_em','valor','obs','status','mes_pagamento','data_inicio'].forEach(c=>{
       const el=document.getElementById('eu-perm-'+c);
       if(el)el.checked=u.permissoes?.[c]||false;
@@ -2245,28 +2119,16 @@ async function saveEditUser(){
   const idx=users.findIndex(u=>u.id===uid);
   if(idx<0)return;
   const old=users[idx];
-  // Lê roles dos checkboxes (edição)
-  const canEditRole=isAdmin()&&CU?.id!==uid;
-  let newRoles=old.roles||[old.role||'viewer'];
-  if(canEditRole) newRoles=getRolesFromCheckboxes('eu-roles');
-  if(!newRoles.length) newRoles=['viewer'];
-  const newRole=newRoles.includes('admin')?'admin':newRoles[0];
+  const newRole=(CU?.role==='admin'&&CU?.id!==uid)?role:old.role;
   const CAMPOS=['pago_em','valor','obs','status','mes_pagamento','data_inicio'];
   let newPerms={};
-  if(newRoles.includes('admin')){CAMPOS.forEach(c=>newPerms[c]=true);}
+  if(newRole==='admin'){CAMPOS.forEach(c=>newPerms[c]=true);}
   else{CAMPOS.forEach(c=>{const el=document.getElementById('eu-perm-'+c);newPerms[c]=el?el.checked:old.permissoes?.[c]||false;});}
-  users[idx]={...old,nome,email:em,role:newRole,roles:newRoles,permissoes:newPerms};
+  users[idx]={...old,nome,email:em,role:newRole,permissoes:newPerms};
   if(pw)users[idx].senha=pw;
   await saveUsers(users);
-  if(CU?.id===uid){
-    CU={...CU,nome,email:em,roles:newRoles,role:newRole};
-    document.getElementById('cur-nome').textContent=nome;
-    // Atualiza badge
-    const rolesLabels={'admin':'Admin','pagador':'Pagador','baixador':'Baixador','viewer':'Viewer'};
-    const rb=document.getElementById('cur-role-badge');
-    if(rb){rb.textContent=newRoles.map(r=>rolesLabels[r]||r).join(' + ');rb.className='trole '+(isAdmin()?'admin':'viewer');}
-  }
-  addLog('Editou usuário',nome+' ('+em+') — '+newRoles.join('+'));
+  if(CU?.id===uid){CU={...CU,nome,email:em};document.getElementById('cur-nome').textContent=nome;}
+  addLog('Editou usuário',nome+' ('+em+')');
   toast('Usuário atualizado!','ok');
   closeOv('ov-edit-user');
   renderUsuarios();
@@ -2283,9 +2145,7 @@ async function delUser(uid){
 }
 
 async function showCredentials(nome,em,pw,role,permissoes){
-  const rolesLabelsC={'admin':'⭐ Administrador','pagador':'📎 Pagador','baixador':'✅ Baixador','viewer':'👁️ Visualizador'};
-  const rolesExib=Array.isArray(roles)&&roles.length?roles:(role?[role]:['viewer']);
-  const rl=rolesExib.map(r=>rolesLabelsC[r]||r).join(' + ');
+  const rl=role==='admin'?'Administrador':'Visualizador';
   document.getElementById('cred-nome').textContent=nome;
   document.getElementById('cred-email').textContent=em;
   document.getElementById('cred-senha').textContent=pw;
@@ -2295,8 +2155,8 @@ async function showCredentials(nome,em,pw,role,permissoes){
   if(permEl&&permissoes){
     const ativos=Object.keys(permissoes).filter(k=>permissoes[k]).map(k=>LABELS[k]||k);
     permEl.innerHTML=role==='admin'
-      ?'Acesso total (Administrador)'
-      :(ativos.length?ativos.join(' | '):'Nenhum campo liberado');
+      ?'<span style="color:var(--yellow)">Acesso total (Administrador)</span>'
+      :(ativos.length?ativos.join(' | '):'<span style="color:var(--muted)">Nenhum campo liberado</span>');
   }
   openOv('ov-cred');
 }
@@ -2362,7 +2222,7 @@ async function notifyWpp(tipo, detalhe=''){
     const now=new Date().toLocaleString('pt-BR');
     const emoji={login:'🔑',pago:'💳',edit:'✏️',novo:'➕'};
     const titulo={login:'Login no sistema',pago:'Pagamento registrado',edit:'Cliente editado',novo:'Novo cliente cadastrado'};
-    const msg='Salim &amp; Salim\n'
+    const msg='<b>Salim &amp; Salim</b>\n'
       +(emoji[tipo]||'📢')+' '+(titulo[tipo]||tipo)
       +'\n👤 '+( CU?.nome||'?')
       +'\n🕐 '+now
@@ -2391,7 +2251,7 @@ async function sendTelegram(mensagem){
 async function testWpp(){
   const status=document.getElementById('wpp-test-status');
   if(status){status.textContent='Enviando...';status.style.color='var(--muted)';}
-  const msg='✅ Salim &amp; Salim\nTeste de notificação funcionando!\nConfigurado por: '+(CU?.nome||'Admin')+'\nData: '+new Date().toLocaleString('pt-BR');
+  const msg='✅ <b>Salim &amp; Salim</b>\nTeste de notificação funcionando!\nConfigurado por: '+(CU?.nome||'Admin')+'\nData: '+new Date().toLocaleString('pt-BR');
   const ok=await sendTelegram(msg);
   if(status){
     status.textContent=ok?'✅ Mensagem enviada! Verifique seu Telegram.':'❌ Erro ao enviar.';
@@ -2403,14 +2263,13 @@ async function testWpp(){
 
 // ── SECTIONS ──
 async function showSec(s){
-  ['clientes','log','usuarios'].forEach(x=>{
+  ['clientes','log','usuarios','comprovantes'].forEach(x=>{
     document.getElementById('sec-'+x).classList.toggle('on',x===s);
   });
   document.querySelectorAll('.tnav-btn').forEach(b=>b.classList.toggle('on',b.dataset.s===s));
   updateMobileNav(s);
   if(s==='log')renderLog();
   if(s==='usuarios')renderUsuarios();
-  if(s==='lotes')renderLotes();
 }
 
 // ── OVERLAYS ──
@@ -2418,7 +2277,7 @@ function openOv(id){document.getElementById(id).classList.add('open');}
 function closeOv(id){document.getElementById(id).classList.remove('open');}
 function ovClick(e,id){if(e.target===document.getElementById(id))closeOv(id);}
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape')['ov-cli','ov-pago','ov-hist','ov-del','ov-novo-user','ov-edit-user','ov-cred','ov-novo-lote','ov-baixa-parcial'].forEach(closeOv);
+  if(e.key==='Escape')['ov-cli','ov-pago','ov-hist','ov-del','ov-novo-user','ov-edit-user','ov-cred'].forEach(closeOv);
 });
 
 // ── TOAST ──
@@ -2488,435 +2347,647 @@ async function importDB(){
 }
 
 function buildXLS(sheets,filename){
-  let h=`body{font-family:Arial;font-size:11pt;}table{border-collapse:collapse;width:100%;}th{background:#1a1a1e;color:#e8c96a;padding:6pt 10pt;border:1pt solid #444;text-align:left;}td{padding:5pt 10pt;border:1pt solid #ddd;}
-
-
-
-
-
-
-
-
-
-`;
+  let h=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"><style>body{font-family:Arial;font-size:11pt;}table{border-collapse:collapse;width:100%;}th{background:#1a1a1e;color:#e8c96a;padding:6pt 10pt;border:1pt solid #444;text-align:left;}td{padding:5pt 10pt;border:1pt solid #ddd;}</style><!-- PWA - Instalar como app -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Salim & Salim">
+<meta name="application-name" content="Salim & Salim">
+<meta name="theme-color" content="#0f0f10">
+<link rel="manifest" href="manifest.json">
+<!-- Ícone para iOS -->
+<link rel="apple-touch-icon" href="https://api.iconify.design/mdi:account-group.svg?color=%23e8c96a&width=192&height=192">
+</head><body>`;
   for(const s of sheets){
-    h+=`${s.title}${s.headers.map(x=>`${x}`).join('')}`;
-    h+=s.rows.map(r=>'' + r.map(c=>'' + (c||'').toString().replace(/&/g,'&amp;').replace(/[<>"]/g,'').replace(/`/g,"'") + '').join('') + '').join('');
-    h+='';
+    h+=`<h2>${s.title}</h2><table><tr>${s.headers.map(x=>`<th>${x}</th>`).join('')}</tr>`;
+    h+=s.rows.map(r=>`<tr>${r.map(c=>`<td>${(c||'').toString().replace(/&/g,'&amp;').replace(/</g,'&lt;')}</td>`).join('')}</tr>`).join('');
+    h+='</table><br>';
   }
-  h+='';
-  const blob=new Blob([h],{type:'application/vnd.ms-excel;charset=utf-8'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download=filename;
-  document.body.appendChild(a);a.click();
-  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},200);
+  h+='
+<!-- ══ MODAL: NOVO COMPROVANTE ════════════════════════════════ -->
+<div class="ov" id="ov-comp-novo" onclick="ovClick(event,'ov-comp-novo')">
+  <div class="modal" style="max-width:560px">
+    <div class="mhdr"><h2>📎 Novo Comprovante</h2><button class="mclose" onclick="closeOv('ov-comp-novo')">✕</button></div>
+    <div class="mbody">
+      <!-- Upload da imagem -->
+      <div class="upload-zone" id="comp-upload-zone" onclick="document.getElementById('comp-file-input').click()">
+        <div id="comp-upload-label">📷 Clique aqui para selecionar a imagem do comprovante<br><small style="color:var(--muted)">JPG ou PNG · máximo 5MB</small></div>
+        <img id="comp-img-preview" style="display:none;max-width:100%;max-height:200px;border-radius:6px;margin-top:10px">
+      </div>
+      <input type="file" id="comp-file-input" accept="image/jpeg,image/png" style="display:none" onchange="onCompFileSelect(this)">
+      <!-- Campos obrigatórios -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px">
+        <div>
+          <label class="flabel">Data do Pagamento *</label>
+          <input type="date" id="comp-data" class="finp">
+        </div>
+        <div>
+          <label class="flabel">Valor Total (R$) *</label>
+          <input type="number" id="comp-valor" step="0.01" placeholder="0,00" class="finp">
+        </div>
+        <div>
+          <label class="flabel">Banco / Conta *</label>
+          <input type="text" id="comp-banco" placeholder="Ex: Itaú CC 1234-5" class="finp">
+        </div>
+        <div>
+          <label class="flabel">Referência / ID *</label>
+          <input type="text" id="comp-ref" placeholder="Ex: TED 20260608-001" class="finp">
+        </div>
+      </div>
+      <label class="flabel" style="margin-top:4px">Observações</label>
+      <textarea id="comp-obs" class="finp" rows="2" placeholder="Observações adicionais..."></textarea>
+      <!-- Seleção de clientes -->
+      <label class="flabel" style="margin-top:4px">Clientes vinculados *</label>
+      <input type="search" id="comp-cli-busca" class="finp" placeholder="🔍 Filtrar clientes..." oninput="filtrarClisSel()" style="margin-bottom:6px">
+      <div class="cli-sel-list" id="comp-cli-lista"></div>
+      <!-- Alocação de valores por cliente (opcional) -->
+      <div id="comp-val-alocacao" style="display:none;margin-top:10px">
+        <label class="flabel">Valor por cliente (opcional)</label>
+        <div id="comp-val-lista"></div>
+        <div id="comp-val-aviso" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-gh btn-xs" onclick="closeOv('ov-comp-novo')">Cancelar</button>
+      <button class="btn btn-acc btn-xs" id="btn-salvar-comp" onclick="salvarComprovante()">📎 Enviar Comprovante</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: VISUALIZAR COMPROVANTE ══════════════════════════ -->
+<div class="ov" id="ov-comp-ver" onclick="ovClick(event,'ov-comp-ver')">
+  <div class="modal" style="max-width:640px">
+    <div class="mhdr"><h2 id="comp-ver-titulo">Comprovante</h2><button class="mclose" onclick="closeOv('ov-comp-ver')">✕</button></div>
+    <div class="mbody">
+      <img id="comp-ver-img" style="width:100%;border-radius:8px;margin-bottom:14px;cursor:zoom-in" onclick="window.open(this.src,'_blank')">
+      <div id="comp-ver-info"></div>
+      <div id="comp-ver-clientes" style="margin-top:10px"></div>
+      <div id="comp-ver-audit" class="comp-audit" style="margin-top:10px"></div>
+      <!-- Ações do baixador -->
+      <div id="comp-ver-acoes" style="display:none;margin-top:14px;padding-top:14px;border-top:1px solid var(--bdr)">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:8px">Selecione os clientes para dar baixa:</div>
+        <div id="comp-baixa-lista" class="cli-sel-list" style="margin-bottom:10px"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-acc btn-xs" onclick="darBaixaLote()">✅ Baixar Selecionados</button>
+          <button class="btn btn-gh btn-xs" onclick="darBaixaTodos()">✅ Baixar Todos</button>
+          <button class="btn btn-red btn-xs" onclick="openRejeitarComp()">❌ Rejeitar</button>
+        </div>
+      </div>
+      <!-- Ação de estorno (admin) -->
+      <div id="comp-ver-estorno" style="display:none;margin-top:10px">
+        <button class="btn btn-gh btn-xs" onclick="estornarComp()" style="width:100%">↩️ Estornar / Reverter Baixa</button>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-gh btn-xs" onclick="closeOv('ov-comp-ver')">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: REJEITAR COMPROVANTE ═══════════════════════════ -->
+<div class="ov" id="ov-comp-rejeitar" onclick="ovClick(event,'ov-comp-rejeitar')">
+  <div class="modal" style="max-width:420px">
+    <div class="mhdr"><h2>❌ Rejeitar Comprovante</h2><button class="mclose" onclick="closeOv('ov-comp-rejeitar')">✕</button></div>
+    <div class="mbody">
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px">Informe o motivo da rejeição. O usuário que enviou será notificado.</p>
+      <label class="flabel">Motivo da rejeição *</label>
+      <textarea id="comp-motivo-rejeicao" class="rejeitar-motivo" placeholder="Ex: Valor divergente, imagem ilegível, data incorreta..."></textarea>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-gh btn-xs" onclick="closeOv('ov-comp-rejeitar')">Cancelar</button>
+      <button class="btn btn-red btn-xs" onclick="confirmarRejeicao()">Confirmar Rejeição</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+// MÓDULO: COMPROVANTES DE PAGAMENTO
+// Roles: quem tem permissao pode_comprovante = envia
+//        role 'baixador' ou 'admin' = visualiza fila e dá baixa
+// Collection Firestore: 'comprovantes'
+// Estrutura: { id, dataPgto, valor, banco, ref, obs, imgBase64,
+//              status (aguardando|baixado|rejeitado), clientes[],
+//              valoresPorCliente{}, criadoPor, criadoEm,
+//              baixas[{cliId, baixadoPor, baixadoEm}],
+//              motivoRejeicao, rejeitadoPor, rejeitadoEm,
+//              estornos[] }
+// ════════════════════════════════════════════════════════════════
+
+// ── Estado do módulo ─────────────────────────────────────────────
+let _compCache = [];           // cache local dos comprovantes
+let _compImgBase64 = null;     // imagem selecionada (base64)
+let _compAtualId = null;       // ID do comprovante em visualização
+let _compSelecionadosClis = []; // clientes selecionados no modal novo
+
+// ── Helpers de permissão ─────────────────────────────────────────
+function podeAnexarComp() {
+  if (!CU) return false;
+  if (CU.role === 'admin') return true;
+  return !!(CU.permissoes && CU.permissoes.pode_comprovante);
 }
-
-async function exportXLS(){
-  const cli=getClientes();
-  const filtered=sortData(getFiltered(cli));
-  const hist=getHist();
-  const cliRows=filtered.map(c=>[c.cliente||'',(c.mes_pagamento||'').toUpperCase(),fD(c.data_inicio),fD(c.pago_em),c.valorNum?fV(c.valorNum):'',c.status||'',c.obs||'']);
-  const histRows=hist.map(h=>[h.cNome||'',new Date(h.ts).toLocaleString('pt-BR'),h.nome||'',h.email||'',h.campo||'',h.antes||'',h.depois||'']);
-  buildXLS([
-    {title:'Clientes — Salim & Salim',headers:['Nome','Mês Pgto','Data Início','Pago Em','Valor','Status','Observações'],rows:cliRows},
-    {title:'Histórico de Alterações',headers:['Cliente','Data/Hora','Usuário','Email','Campo','Valor Anterior','Novo Valor'],rows:histRows}
-  ],'salim_clientes_'+new Date().toISOString().slice(0,10)+'.xls');
-  addLog('Exportou Excel',filtered.length+' clientes');
-  toast('Excel baixado!','ok');
+function podeBaixar() {
+  if (!CU) return false;
+  return CU.role === 'admin' || CU.role === 'baixador';
 }
+function isAdminComp() { return CU && CU.role === 'admin'; }
 
-async function exportLogXLS(){
-  const logs=getLogs();
-  const rows=logs.map(l=>[new Date(l.ts).toLocaleString('pt-BR'),l.nome,l.email,l.role,l.acao,l.det||'']);
-  buildXLS([{title:'Log de Acessos',headers:['Data/Hora','Usuário','Email','Perfil','Ação','Detalhe'],rows}],'salim_log_'+new Date().toISOString().slice(0,10)+'.xls');
-  toast('Log exportado!','ok');
-}
-
-
-
-async function exportXLS(){
-  const cli=getClientes();
-  const filtered=sortData(getFiltered(cli));
-  const hist=getHist();
-  const cliRows=filtered.map(c=>[c.cliente||'',(c.mes_pagamento||'').toUpperCase(),fD(c.data_inicio),fD(c.pago_em),c.valorNum?fV(c.valorNum):'',c.status||'',c.obs||'']);
-  const histRows=hist.map(h=>[h.cNome||'',new Date(h.ts).toLocaleString('pt-BR'),h.nome||'',h.email||'',h.campo||'',h.antes||'',h.depois||'']);
-  buildXLS([
-    {title:'Clientes — Salim & Salim',headers:['Nome','Mês Pgto','Data Início','Pago Em','Valor','Status','Observações'],rows:cliRows},
-    {title:'Histórico de Alterações',headers:['Cliente','Data/Hora','Usuário','Email','Campo','Valor Anterior','Novo Valor'],rows:histRows}
-  ],'salim_clientes_'+new Date().toISOString().slice(0,10)+'.xls');
-  addLog('Exportou Excel',filtered.length+' clientes');
-  toast('Excel baixado!','ok');
-}
-
-async function exportLogXLS(){
-  const logs=getLogs();
-  const rows=logs.map(l=>[new Date(l.ts).toLocaleString('pt-BR'),l.nome,l.email,l.role,l.acao,l.det||'']);
-  buildXLS([{title:'Log de Acessos',headers:['Data/Hora','Usuário','Email','Perfil','Ação','Detalhe'],rows}],'salim_log_'+new Date().toISOString().slice(0,10)+'.xls');
-  toast('Log exportado!','ok');
-}
-
-// ── INIT ──
-window.addEventListener('DOMContentLoaded', async function(){
-  hideLoading();
-  const timer=setTimeout(()=>{
-    hideLoading();
-    const err=document.getElementById('l-err');
-    if(err){err.style.display='block';err.textContent='⚠️ Sem conexão. Verifique sua internet e recarregue.';}
-  },15000);
-  try{
-    await initFirestoreData();
-    clearTimeout(timer);
-    hideLoading();
-  }catch(e){clearTimeout(timer);hideLoading();console.error(e);}
-});
-
-// Toggle visibilidade de permissões baseado nos checkboxes de roles
-function onRoleCheckChange(containerId, permSecId) {
-  const roles = getRolesFromCheckboxes(containerId);
-  const sec = document.getElementById(permSecId);
-  if(sec) sec.style.display = roles.includes('admin') ? 'none' : 'block';
-}
-// ══════════════════════════════════════════════════
-// SISTEMA DE COMPROVANTES E LOTES
-// ══════════════════════════════════════════════════
-
-let _cache_lotes = [];
-
-function startLotesListener() {
-  if(window._fb) {
-    window._fb.onSnapshotOrdered('lotes','criadoEm','desc',200, data => {
-      _cache_lotes = data;
-      if(document.getElementById('sec-lotes')?.classList.contains('on')) renderLotes();
-    });
-  }
-}
-
-// Verifica se usuário tem um determinado perfil (suporta roles como array ou string)
-function hasRole(r) {
-  if(!CU) return false;
-  if(Array.isArray(CU.roles)) return CU.roles.includes(r) || CU.roles.includes('admin');
-  return CU.role === r || CU.role === 'admin';
-}
-function isAdmin()   { if(!CU)return false; if(Array.isArray(CU.roles))return CU.roles.includes('admin'); return CU.role==='admin'; }
-function isPagador() { return hasRole('pagador'); }
-function isBaixador(){ return hasRole('baixador'); }
-
-let _loteComprovantes = [];
-
-function openNovoLote() {
-  _loteComprovantes = [];
-  const prev = document.getElementById('lote-preview-area');
-  const area = document.getElementById('lote-upload-area');
-  if(prev) prev.innerHTML = '';
-  if(area){ area.textContent='📎 Toque aqui para anexar comprovante(s) (JPG/PNG)'; area.className='upload-area'; }
-  const hoje = new Date();
-  const mesAtual = String(hoje.getMonth()+1).padStart(2,'0');
-  const anoAtual = hoje.getFullYear();
-  const chaveVenc = mesAtual+'/'+anoAtual;
-  const clis = getClientes().filter(c => c.status==='ativo' && c.vencimento && c.vencimento===chaveVenc);
-  const lista = document.getElementById('lote-clientes-lista');
-  if(lista) lista.innerHTML = clis.length ? clis.map(c =>
-    '<div class="cli-check-item" id="cc-'+c.id+'" onclick="toggleCliLoteEl(this)">'+
-    '<input type="checkbox" id="chk-'+c.id+'">'+
-    '<span class="cli-check-nome">'+c.cliente+'</span>'+
-    '<span class="cli-check-val">'+(pV(c.valor)?fV(pV(c.valor)):'—')+'</span></div>'
-  ).join('') : '<p style="color:var(--muted);padding:16px;text-align:center">Nenhum cliente com vencimento neste mês.</p>';
-  openOv('ov-novo-lote');
-}
-
-function toggleCliLoteEl(el){toggleCliLote(el.getAttribute('data-cid'),el);}
-function toggleCliLote(id,el) {
-  const chk=document.getElementById('chk-'+id); if(!chk)return;
-  chk.checked=!chk.checked; el.classList.toggle('selected',chk.checked);
-}
-
-function handleLoteUpload(input) {
-  const files=Array.from(input.files); if(!files.length)return;
-  const area=document.getElementById('lote-upload-area');
-  const prev=document.getElementById('lote-preview-area');
-  if(area){area.textContent=files.length+' arquivo(s) selecionado(s)';area.className='upload-area has-file';}
-  _loteComprovantes=[];
-  if(prev) prev.innerHTML='';
-  files.forEach((file,i)=>{
-    const reader=new FileReader();
-    reader.onload=e=>{
-      const img=new Image();
-      img.onload=()=>{
-        const canvas=document.createElement('canvas');
-        let w=img.width,h=img.height;
-        const maxW=1200,maxH=1600;
-        if(w>maxW){h=Math.round(h*maxW/w);w=maxW;}
-        if(h>maxH){w=Math.round(w*maxH/h);h=maxH;}
-        canvas.width=w;canvas.height=h;
-        canvas.getContext('2d').drawImage(img,0,0,w,h);
-        const b64=canvas.toDataURL('image/jpeg',0.75);
-        _loteComprovantes[i]=b64;
-        const thumb=document.createElement('img');
-        thumb.src=b64;thumb.className='comp-preview';
-        thumb.onclick=()=>window.open(b64);
-        if(prev)prev.appendChild(thumb);
-      };img.src=e.target.result;
-    };reader.readAsDataURL(file);
+// ── Listener em tempo real ────────────────────────────────────────
+function startCompListener() {
+  if (!window._fb) return;
+  const unsub = window._fb.onSnapshot('comprovantes', (data) => {
+    _compCache = data.sort((a,b) => (b.criadoEm||'').localeCompare(a.criadoEm||''));
+    atualizarBadgeComp();
+    const sec = document.getElementById('sec-comprovantes');
+    if (sec && sec.classList.contains('on')) renderComprovantes();
   });
+  if (window._unsubscribes) window._unsubscribes.push(unsub);
 }
 
-async function salvarLote() {
-  const checkeds=document.querySelectorAll('#lote-clientes-lista .cli-check-item.selected');
-  if(!checkeds.length){toast('Selecione ao menos 1 cliente.','err');return;}
-  if(!_loteComprovantes.length||_loteComprovantes.some(c=>!c)){toast('Aguardando processamento das imagens...','err');return;}
-  const btn=document.getElementById('btn-salvar-lote');
-  if(btn){btn.disabled=true;btn.textContent='Salvando...';}
-  try{
-    const clientesIds=Array.from(checkeds).map(el=>{
-      const id=el.id.replace('cc-','');
-      const c=getClientes().find(x=>String(x.id)===String(id));
-      return{id,nome:c?.cliente||''};
-    });
-    const lote={
-      criadoEm:new Date().toISOString(),criadoPor:CU.nome,criadoPorEmail:CU.email,
-      status:'aguardando',clientes:clientesIds,comprovantes:_loteComprovantes,
-      baixadoEm:'',baixadoPor:'',obs:''
-    };
-    await db.addDoc('lotes',lote);
-    for(const{id} of clientesIds){
-      const c=(_cache.cli||[]).find(x=>String(x.id)===String(id));
-      if(c){const at={...c,status_pgto:'aguardando',venc_lote_ts:new Date().toISOString()};await db.setDoc('clientes',String(c._docId||c.id),at);}
-    }
-    await addLog('Enviou lote',clientesIds.length+' clientes — comprovantes anexados');
-    toast('Lote enviado!','ok');closeOv('ov-novo-lote');renderLotes();renderTable();
-  }catch(e){toast('Erro: '+e.message,'err');}
-  finally{if(btn){btn.disabled=false;btn.textContent='📤 Enviar Lote';}}
+// ── Badge contador "Aguardando baixa" ────────────────────────────
+function atualizarBadgeComp() {
+  const aguard = _compCache.filter(c => c.status === 'aguardando').length;
+  const badge = document.getElementById('badge-comp');
+  if (!badge) return;
+  badge.textContent = aguard;
+  badge.style.display = aguard > 0 ? 'inline' : 'none';
 }
 
-// Visualizar comprovante
-function verCompEl(el){
-  const loteId=el.getAttribute('data-loteid');
-  const idx=parseInt(el.getAttribute('data-idx'),10);
-  const l=_cache_lotes.find(x=>x._docId===loteId);if(!l)return;
-  const b64=l.comprovantes[idx];if(!b64)return;
-  try{
-    const byteStr=atob(b64.split(',')[1]||b64);
-    const arr=new Uint8Array(byteStr.length);
-    for(let i=0;i<byteStr.length;i++)arr[i]=byteStr.charCodeAt(i);
-    const blob=new Blob([arr],{type:'image/jpeg'});
-    const url=URL.createObjectURL(blob);
-    window.open(url,'_blank');
-    setTimeout(()=>URL.revokeObjectURL(url),5000);
-  }catch(e){
-    // Fallback: abrir base64 diretamente
-    const win=window.open('','_blank');
-    if(win)win.document.write('<body style="margin:0;background:#000"><img src="'+b64+'" style="max-width:100vw;max-height:100vh;display:block;margin:auto"></body>');
+// ── Abrir modal de novo comprovante ──────────────────────────────
+function openNovoComp() {
+  _compImgBase64 = null;
+  _compSelecionadosClis = [];
+  const preview = document.getElementById('comp-img-preview');
+  const zone = document.getElementById('comp-upload-zone');
+  const label = document.getElementById('comp-upload-label');
+  if (preview) { preview.style.display = 'none'; preview.src = ''; }
+  if (zone) zone.className = 'upload-zone';
+  if (label) label.style.display = 'block';
+  document.getElementById('comp-file-input').value = '';
+  ['comp-data','comp-valor','comp-banco','comp-ref','comp-obs'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
+  // Pré-preencher data com hoje
+  const today = new Date().toISOString().split('T')[0];
+  const dtEl = document.getElementById('comp-data');
+  if (dtEl) dtEl.value = today;
+  // Popular lista de clientes
+  renderClisSel('');
+  document.getElementById('comp-val-alocacao').style.display = 'none';
+  openOv('ov-comp-novo');
+}
+
+// ── Seleção de arquivo de imagem ─────────────────────────────────
+function onCompFileSelect(input) {
+  const file = input.files[0];
+  if (!file) return;
+  // Validações
+  if (!['image/jpeg','image/png'].includes(file.type)) {
+    toast('Formato inválido. Use JPG ou PNG.', 'err'); return;
   }
+  if (file.size > 5 * 1024 * 1024) {
+    toast('Imagem muito grande. Máximo 5MB.', 'err'); return;
+  }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    _compImgBase64 = e.target.result;
+    const preview = document.getElementById('comp-img-preview');
+    const zone = document.getElementById('comp-upload-zone');
+    const label = document.getElementById('comp-upload-label');
+    if (preview) { preview.src = _compImgBase64; preview.style.display = 'block'; }
+    if (zone) zone.className = 'upload-zone has-img';
+    if (label) label.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
 }
 
-
-function renderLotes(){
-  const div=document.getElementById('lotes-list');if(!div)return;
-  const isP=isPagador(),isB=isBaixador(),isA=CU?.role==='admin';
-  const btnN=document.getElementById('btn-novo-lote');
-  if(btnN)btnN.style.display=isP?'':'none';
-  if(!_cache_lotes.length){div.innerHTML='<p style="padding:24px;text-align:center;color:var(--muted)">Nenhum lote enviado.</p>';return;}
-  div.innerHTML=_cache_lotes.map(l=>{
-    const dt=l.criadoEm?new Date(l.criadoEm).toLocaleString('pt-BR'):'—';
-    const stHtml=l.status==='baixado'
-      ?'<span class="pill pill-act">✅ Baixado</span>'
-      :'<span class="pill pill-aguard">🕐 Aguardando Baixa</span>';
-    const comps=(l.comprovantes||[]).filter(Boolean);
-    const prevs=comps.map(function(b,i){var sid=(l._docId||'').replace(/'/g,'');return '<img src="'+b+'" class="comp-preview" data-loteid="'+sid+'" data-idx="'+i+'" onclick="verCompEl(this)" title="Ver comprovante '+(i+1)+'">';}).join('');
-    const cliHtml=(l.clientes||[]).map(c=>'<span style="display:inline-block;background:var(--surf3);border-radius:4px;padding:2px 7px;font-size:11px;margin:2px">'+c.nome+'</span>').join('');
-    const btns=[];
-    if(isB&&l.status!=='baixado'){
-    var lid=(l._docId||'').replace(/'/g,'');
-    btns.push('<button class="btn btn-acc btn-xs" data-lid="'+lid+'" onclick="darBaixaEl(this)">✅ Dar Baixa</button>');
-    btns.push('<button class="btn btn-gh btn-xs" data-lid="'+lid+'" onclick="darBaixaParcialEl(this)">📝 Baixa Parcial</button>');
-  }
-  if(isA){var lid2=(l._docId||'').replace(/'/g,'');btns.push('<button class="btn btn-red btn-xs" data-lid="'+lid2+'" onclick="delLoteEl(this)">🗑️</button>');}
-    const obsHtml=l.baixadoPor?'<div style="font-size:11px;color:var(--muted);margin-top:8px">Baixado por <b>'+l.baixadoPor+'</b> em '+new Date(l.baixadoEm).toLocaleString('pt-BR')+'</div>':'';
-    return '<div class="lote-card"><div class="lote-card-top"><div>'+stHtml+'<div style="font-size:11px;color:var(--muted);margin-top:4px">📅 '+dt+' — por <b>'+(l.criadoPor||'—')+'</b></div></div><span class="badge-azul">'+(l.clientes||[]).length+' cliente(s)</span></div><div class="lote-clientes">'+cliHtml+'</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'+prevs+'</div>'+obsHtml+'<div class="lote-actions">'+btns.join('')+'</div></div>';
+// ── Renderizar lista de clientes para seleção ────────────────────
+function renderClisSel(q) {
+  const lista = document.getElementById('comp-cli-lista');
+  if (!lista) return;
+  const clis = getClientes().filter(c =>
+    c.status === 'ativo' &&
+    (!q || (c.cliente||'').toLowerCase().includes(q.toLowerCase()))
+  );
+  if (!clis.length) { lista.innerHTML = '<div style="padding:10px;color:var(--muted);font-size:12px">Nenhum cliente ativo encontrado.</div>'; return; }
+  lista.innerHTML = clis.map(c => {
+    const sel = _compSelecionadosClis.includes(String(c.id));
+    return `<label class="cli-sel-item" style="${sel?'background:var(--surf2)':''}">
+      <input type="checkbox" value="${c.id}" ${sel?'checked':''} onchange="onCliSelChange(this)">
+      <span>${c.cliente||''}</span>
+      <span style="margin-left:auto;color:var(--muted);font-size:11px">${(c.mes_pagamento||'').toUpperCase()}</span>
+    </label>`;
   }).join('');
 }
 
-function darBaixaEl(el){darBaixa(el.getAttribute('data-lid'));}
-function darBaixaParcialEl(el){darBaixaParcial(el.getAttribute('data-lid'));}
-function delLoteEl(el){delLote(el.getAttribute('data-lid'));}
-async function darBaixa(loteId){
-  if(!confirm('Confirmar baixa em todos os clientes deste lote?'))return;
-  await _processarBaixa(loteId,null);
+function filtrarClisSel() {
+  const q = document.getElementById('comp-cli-busca')?.value || '';
+  renderClisSel(q);
 }
 
-function darBaixaParcial(loteId){
-  const lote=_cache_lotes.find(l=>l._docId===loteId);if(!lote)return;
-  const lista=document.getElementById('baixa-clientes-lista');
-  if(lista)lista.innerHTML=(lote.clientes||[]).map(c=>
-    '<div class="cli-check-item selected" id="bcc-'+c.id+'" onclick="toggleBaixaItem(this)">'+
-    '<input type="checkbox" id="bchk-'+c.id+'" checked>'+
-    '<span class="cli-check-nome">'+(c.nome||c.id)+'</span></div>'
+function onCliSelChange(chk) {
+  const id = String(chk.value);
+  if (chk.checked) {
+    if (!_compSelecionadosClis.includes(id)) _compSelecionadosClis.push(id);
+  } else {
+    _compSelecionadosClis = _compSelecionadosClis.filter(x => x !== id);
+  }
+  // Mostrar/ocultar alocação de valores
+  const alocDiv = document.getElementById('comp-val-alocacao');
+  if (alocDiv) alocDiv.style.display = _compSelecionadosClis.length > 1 ? 'block' : 'none';
+  renderValAlocacao();
+}
+
+function renderValAlocacao() {
+  const lista = document.getElementById('comp-val-lista');
+  if (!lista) return;
+  const total = parseFloat(document.getElementById('comp-valor')?.value) || 0;
+  const clis = getClientes().filter(c => _compSelecionadosClis.includes(String(c.id)));
+  lista.innerHTML = clis.map(c =>
+    `<div class="val-por-cli">
+      <span style="flex:1;font-size:12px">${c.cliente||''}</span>
+      <input type="number" step="0.01" placeholder="0,00" id="val-cli-${c.id}" 
+        oninput="validarSomaAlocacao()" 
+        style="width:110px;padding:4px 8px;background:var(--surf2);border:1px solid var(--bdr);border-radius:4px;color:var(--text);font-size:12px">
+    </div>`
   ).join('');
-  document.getElementById('btn-confirm-baixa-parcial').onclick=()=>_processarBaixaParcial(loteId);
-  openOv('ov-baixa-parcial');
 }
 
-function toggleBaixaItem(el){
-  const chk=el.querySelector('input[type=checkbox]');
-  if(chk)chk.checked=!chk.checked;
-  el.classList.toggle('selected',chk?.checked);
-}
-
-async function _processarBaixaParcial(loteId){
-  const sel=Array.from(document.querySelectorAll('#baixa-clientes-lista .cli-check-item.selected')).map(el=>el.id.replace('bcc-',''));
-  if(!sel.length){toast('Selecione ao menos 1 cliente.','err');return;}
-  closeOv('ov-baixa-parcial');
-  await _processarBaixa(loteId,sel);
-}
-
-async function _processarBaixa(loteId,clientesIds){
-  const lote=_cache_lotes.find(l=>l._docId===loteId);if(!lote)return;
-  const agora=new Date().toISOString();
-  const hoje=agora.split('T')[0];
-  const alvoIds=clientesIds||(lote.clientes||[]).map(c=>c.id);
-  for(const id of alvoIds){
-    const c=(_cache.cli||[]).find(x=>String(x.id)===String(id));if(!c)continue;
-    const novoVenc=calcVenc(hoje);
-    const at={...c,pago_em:hoje,vencimento:novoVenc||c.vencimento,status_pgto:'pago'};
-    await db.setDoc('clientes',String(c._docId||c.id),at);
-    await addHist(c.id,c.cliente,'Recebimento',fD(c.pago_em||''),fD(hoje));
-    if(novoVenc&&novoVenc!==c.vencimento)await addHist(c.id,c.cliente,'Vencimento',c.vencimento||'',novoVenc);
+function validarSomaAlocacao() {
+  const total = parseFloat(document.getElementById('comp-valor')?.value) || 0;
+  let soma = 0;
+  _compSelecionadosClis.forEach(id => {
+    soma += parseFloat(document.getElementById('val-cli-'+id)?.value || 0);
+  });
+  const aviso = document.getElementById('comp-val-aviso');
+  if (!aviso) return;
+  if (soma === 0) { aviso.textContent = ''; return; }
+  const diff = Math.abs(total - soma);
+  if (diff < 0.01) {
+    aviso.style.color = 'var(--green)';
+    aviso.textContent = '✅ Soma confere com o valor total.';
+  } else {
+    aviso.style.color = 'var(--red)';
+    aviso.textContent = `⚠️ Soma dos valores (R$ ${soma.toFixed(2)}) difere do total (R$ ${total.toFixed(2)}).`;
   }
-  const todosAlvo=(lote.clientes||[]).length;
-  const novoStatus=(!clientesIds||alvoIds.length>=todosAlvo)?'baixado':'aguardando';
-  const lF={...lote,status:novoStatus,baixadoEm:agora,baixadoPor:CU.nome};delete lF._docId;
-  await db.setDoc('lotes',loteId,lF);
-  await addLog('Deu baixa em lote',alvoIds.length+' clientes');
-  toast('Baixa registrada!','ok');renderLotes();renderTable();
 }
 
-async function delLote(loteId){
-  if(!confirm('Excluir este lote?'))return;
-  await db.deleteDoc('lotes',loteId);
-  toast('Lote excluído.','ok');
+// ── Salvar comprovante ────────────────────────────────────────────
+async function salvarComprovante() {
+  // Validações
+  if (!_compImgBase64) { toast('Selecione a imagem do comprovante.', 'err'); return; }
+  const dataPgto = document.getElementById('comp-data')?.value;
+  const valor = parseFloat(document.getElementById('comp-valor')?.value);
+  const banco = document.getElementById('comp-banco')?.value.trim();
+  const ref = document.getElementById('comp-ref')?.value.trim();
+  if (!dataPgto) { toast('Informe a data do pagamento.', 'err'); return; }
+  if (!valor || valor <= 0) { toast('Informe um valor válido.', 'err'); return; }
+  if (!banco) { toast('Informe o banco/conta.', 'err'); return; }
+  if (!ref) { toast('Informe a referência/ID.', 'err'); return; }
+  if (!_compSelecionadosClis.length) { toast('Selecione ao menos 1 cliente.', 'err'); return; }
+
+  // Validar soma de alocação (se preenchida)
+  let valoresPorCliente = {};
+  let somaAlocada = 0;
+  _compSelecionadosClis.forEach(id => {
+    const v = parseFloat(document.getElementById('val-cli-'+id)?.value || 0);
+    if (v > 0) { valoresPorCliente[id] = v; somaAlocada += v; }
+  });
+  if (somaAlocada > 0 && Math.abs(somaAlocada - valor) > 0.01) {
+    toast('Soma dos valores por cliente não confere com o total.', 'err'); return;
+  }
+
+  const btn = document.getElementById('btn-salvar-comp');
+  if (btn) { btn.disabled = true; btn.textContent = 'Enviando...'; }
+
+  try {
+    const clientes = _compSelecionadosClis.map(id => {
+      const c = getClientes().find(x => String(x.id) === String(id));
+      return { id, nome: c?.cliente || id, statusBaixa: 'aguardando' };
+    });
+    const comp = {
+      dataPgto, valor, banco, ref,
+      obs: document.getElementById('comp-obs')?.value.trim() || '',
+      imgBase64: _compImgBase64,
+      status: 'aguardando',
+      clientes,
+      valoresPorCliente,
+      criadoPor: CU.nome,
+      criadoPorEmail: CU.email,
+      criadoEm: new Date().toISOString(),
+      baixas: [],
+      estornos: [],
+      motivoRejeicao: '', rejeitadoPor: '', rejeitadoEm: ''
+    };
+    await window._fb.addDoc('comprovantes', comp);
+    await addLog('Comprovante enviado', `Ref: ${ref} | Valor: R$ ${valor.toFixed(2)} | Clientes: ${clientes.map(c=>c.nome).join(', ')}`);
+    toast('Comprovante enviado! Aguardando baixa.', 'ok');
+    closeOv('ov-comp-novo');
+    showSec('comprovantes');
+  } catch (e) {
+    toast('Erro ao enviar: ' + e.message, 'err');
+    console.error(e);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '📎 Enviar Comprovante'; }
+  }
 }
 
-function initLotes(){
-  startLotesListener();
-  const show=CU?.role==='admin'||CU?.role==='pagador'||CU?.role==='baixador';
-  ['tnav-lotes','bnav-lotes'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=show?'':'none';});
-}
+// ── Renderizar lista de comprovantes ─────────────────────────────
+function renderComprovantes() {
+  const lista = document.getElementById('comp-lista');
+  if (!lista) return;
 
-</script>
-<script>
+  const q = (document.getElementById('cf-busca')?.value || '').toLowerCase();
+  const stFiltro = document.getElementById('cf-status')?.value || '';
+  const dtIni = document.getElementById('cf-data-ini')?.value || '';
+  const dtFim = document.getElementById('cf-data-fim')?.value || '';
 
-// ── PWA Install Prompt ──
-_deferredPrompt = null
-let _deferredPrompt = null;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  _deferredPrompt = e;
-  // Mostra banner após 3 segundos
-  setTimeout(showPWABanner, 3000);
-});
-
-function showPWABanner() {
-  // Só mostra se nunca instalou e nunca dispensou
-  if(localStorage.getItem('pwa_dismissed')) return;
-  if(window.matchMedia('(display-mode: standalone)').matches) return; // já instalado
-  document.getElementById('pwa-banner').style.display = 'block';
-}
-
-async function installPWA() {
-  if(_deferredPrompt) {
-    _deferredPrompt.prompt();
-    const result = await _deferredPrompt.userChoice;
-    if(result.outcome === 'accepted') {
-      console.log('PWA instalado!');
+  let dados = _compCache.filter(c => {
+    if (stFiltro && c.status !== stFiltro) return false;
+    if (dtIni && c.dataPgto < dtIni) return false;
+    if (dtFim && c.dataPgto > dtFim) return false;
+    if (q) {
+      const texto = [c.banco, c.ref, c.obs, ...(c.clientes||[]).map(x=>x.nome)].join(' ').toLowerCase();
+      if (!texto.includes(q)) return false;
     }
-    _deferredPrompt = null;
-  }
-  document.getElementById('pwa-banner').style.display = 'none';
-}
-
-function dismissPWA() {
-  document.getElementById('pwa-banner').style.display = 'none';
-  localStorage.setItem('pwa_dismissed', '1');
-}
-
-// Para iOS (Safari não suporta beforeinstallprompt)
-function isIOS() {
-  return /iphone|ipad|ipod/i.test(navigator.userAgent);
-}
-
-function isInStandaloneMode() {
-  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-}
-
-if(isIOS() && !isInStandaloneMode() && !localStorage.getItem('pwa_dismissed')) {
-  setTimeout(() => {
-    document.getElementById('pwa-banner').style.display = 'block';
-    // Muda texto para instrução do iOS
-    document.querySelector('#pwa-banner .flex-shrink-0 + div + div button:last-child').textContent = 'Ver como';
-    document.querySelector('#pwa-banner div div:last-child').textContent = 'Toque em ⎙ e depois "Adicionar à Tela de Início"';
-    document.getElementById('pwa-banner').querySelector('button:last-child').onclick = dismissPWA;
-  }, 3000);
-}
-
-// ── PWA Install Prompt ──
-_deferredPrompt = null;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  _deferredPrompt = e;
-  // Mostra banner após 3 segundos
-  setTimeout(showPWABanner, 3000);
-});
-
-function showPWABanner() {
-  // Só mostra se nunca instalou e nunca dispensou
-  if(localStorage.getItem('pwa_dismissed')) return;
-  if(window.matchMedia('(display-mode: standalone)').matches) return; // já instalado
-  document.getElementById('pwa-banner').style.display = 'block';
-}
-
-async function installPWA() {
-  if(_deferredPrompt) {
-    _deferredPrompt.prompt();
-    const result = await _deferredPrompt.userChoice;
-    if(result.outcome === 'accepted') {
-      console.log('PWA instalado!');
+    // Viewers só veem seus próprios comprovantes; baixadores e admin veem todos
+    if (!podeBaixar() && !isAdminComp()) {
+      if (c.criadoPorEmail !== CU.email) return false;
     }
-    _deferredPrompt = null;
+    return true;
+  });
+
+  if (!dados.length) {
+    lista.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted)">Nenhum comprovante encontrado.</div>';
+    return;
   }
-  document.getElementById('pwa-banner').style.display = 'none';
+
+  const pillSt = { aguardando: 'pill-aguard', baixado: 'pill-baixado', rejeitado: 'pill-rejeit' };
+  const labelSt = { aguardando: '🕐 Aguardando baixa', baixado: '✅ Baixado', rejeitado: '❌ Rejeitado' };
+
+  lista.innerHTML = dados.map(c => {
+    const totalBaixado = (c.baixas||[]).length;
+    const totalClis = (c.clientes||[]).length;
+    const cliTags = (c.clientes||[]).map(cl =>
+      `<span class="comp-cli-tag ${cl.statusBaixa||'aguard'}">${cl.nome} ${cl.statusBaixa==='baixado'?'✅':cl.statusBaixa==='rejeitado'?'❌':'🕐'}</span>`
+    ).join('');
+
+    const acoesAdmin = isAdminComp()
+      ? `<button class="btn btn-gh btn-xs" onclick="estornarCompCard('${c._docId}')">↩️ Estornar</button>`
+      : '';
+    const acoesBaixador = podeBaixar() && c.status === 'aguardando'
+      ? `<button class="btn btn-acc btn-xs" onclick="verComprovante('${c._docId}')">✅ Dar Baixa</button>`
+      : '';
+
+    return `<div class="comp-card">
+      <div class="comp-card-top">
+        <div>
+          <span class="pill ${pillSt[c.status]||'pill-aguard'}">${labelSt[c.status]||c.status}</span>
+          <span style="font-size:11px;color:var(--muted);margin-left:8px">${totalBaixado}/${totalClis} clientes baixados</span>
+        </div>
+        <button class="btn btn-gh btn-xs" onclick="verComprovante('${c._docId}')">🔍 Ver</button>
+      </div>
+      <div class="comp-info">
+        <div class="comp-info-item"><span class="comp-info-label">Data Pgto</span><span class="comp-info-val">${fD(c.dataPgto)}</span></div>
+        <div class="comp-info-item"><span class="comp-info-label">Valor</span><span class="comp-info-val" style="color:var(--accent)">${fV(c.valor)}</span></div>
+        <div class="comp-info-item"><span class="comp-info-label">Banco/Conta</span><span class="comp-info-val">${c.banco||'—'}</span></div>
+        <div class="comp-info-item"><span class="comp-info-label">Referência</span><span class="comp-info-val">${c.ref||'—'}</span></div>
+      </div>
+      <div class="comp-clientes">${cliTags}</div>
+      ${c.obs ? `<div style="font-size:11px;color:var(--muted);margin-bottom:8px">📝 ${c.obs}</div>` : ''}
+      <div class="comp-audit">
+        📤 Enviado por <b>${c.criadoPor||'?'}</b> em ${new Date(c.criadoEm).toLocaleString('pt-BR')}
+        ${c.motivoRejeicao ? `<br>❌ Motivo: <em>${c.motivoRejeicao}</em>` : ''}
+      </div>
+      <div class="comp-actions" style="margin-top:8px">
+        ${acoesBaixador}
+        ${acoesAdmin}
+      </div>
+    </div>`;
+  }).join('');
 }
 
-function dismissPWA() {
-  document.getElementById('pwa-banner').style.display = 'none';
-  localStorage.setItem('pwa_dismissed', '1');
+// ── Visualizar comprovante (modal detalhado) ──────────────────────
+async function verComprovante(compId) {
+  _compAtualId = compId;
+  const c = _compCache.find(x => x._docId === compId);
+  if (!c) { toast('Comprovante não encontrado.', 'err'); return; }
+
+  document.getElementById('comp-ver-titulo').textContent = `Comprovante — ${c.ref||''}`;
+  document.getElementById('comp-ver-img').src = c.imgBase64 || '';
+
+  const info = document.getElementById('comp-ver-info');
+  if (info) info.innerHTML = `
+    <div class="comp-info">
+      <div class="comp-info-item"><span class="comp-info-label">Data</span><span class="comp-info-val">${fD(c.dataPgto)}</span></div>
+      <div class="comp-info-item"><span class="comp-info-label">Valor</span><span class="comp-info-val" style="color:var(--accent)">${fV(c.valor)}</span></div>
+      <div class="comp-info-item"><span class="comp-info-label">Banco</span><span class="comp-info-val">${c.banco||'—'}</span></div>
+      <div class="comp-info-item"><span class="comp-info-label">Referência</span><span class="comp-info-val">${c.ref||'—'}</span></div>
+      ${c.obs ? `<div class="comp-info-item" style="grid-column:1/-1"><span class="comp-info-label">Obs</span><span class="comp-info-val">${c.obs}</span></div>` : ''}
+    </div>`;
+
+  // Clientes com status individual
+  const cliDiv = document.getElementById('comp-ver-clientes');
+  if (cliDiv) cliDiv.innerHTML = `<div style="font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px">Clientes</div>` +
+    (c.clientes||[]).map(cl => {
+      const val = c.valoresPorCliente?.[cl.id];
+      return `<div class="comp-cli-tag ${cl.statusBaixa||'aguard'}" style="margin-bottom:4px;width:100%;justify-content:space-between">
+        <span>${cl.nome}</span>
+        ${val ? `<span style="color:var(--accent)">R$ ${parseFloat(val).toFixed(2)}</span>` : ''}
+        <span>${cl.statusBaixa==='baixado'?'✅ Baixado':cl.statusBaixa==='rejeitado'?'❌ Rejeitado':'🕐 Aguardando'}</span>
+      </div>`;
+    }).join('');
+
+  // Auditoria
+  const audit = document.getElementById('comp-ver-audit');
+  if (audit) {
+    let html = `📤 <b>${c.criadoPor}</b> enviou em ${new Date(c.criadoEm).toLocaleString('pt-BR')}`;
+    (c.baixas||[]).forEach(b => {
+      html += `<br>✅ <b>${b.por}</b> baixou cliente <b>${b.nomeCliente}</b> em ${new Date(b.em).toLocaleString('pt-BR')}`;
+    });
+    (c.estornos||[]).forEach(e => {
+      html += `<br>↩️ <b>${e.por}</b> estornou em ${new Date(e.em).toLocaleString('pt-BR')}: ${e.motivo||''}`;
+    });
+    if (c.motivoRejeicao) html += `<br>❌ Rejeitado por <b>${c.rejeitadoPor}</b>: ${c.motivoRejeicao}`;
+    audit.innerHTML = html;
+  }
+
+  // Ações do baixador
+  const acoesDiv = document.getElementById('comp-ver-acoes');
+  if (acoesDiv) {
+    const podeAgir = podeBaixar() && c.status === 'aguardando';
+    acoesDiv.style.display = podeAgir ? 'block' : 'none';
+    if (podeAgir) {
+      const baixaLista = document.getElementById('comp-baixa-lista');
+      if (baixaLista) baixaLista.innerHTML = (c.clientes||[])
+        .filter(cl => cl.statusBaixa !== 'baixado')
+        .map(cl =>
+          `<label class="cli-sel-item">
+            <input type="checkbox" value="${cl.id}" checked onchange="">
+            <span>${cl.nome}</span>
+            ${c.valoresPorCliente?.[cl.id] ? `<span style="margin-left:auto;color:var(--accent);font-size:11px">R$ ${parseFloat(c.valoresPorCliente[cl.id]).toFixed(2)}</span>` : ''}
+          </label>`
+        ).join('');
+    }
+  }
+
+  // Estorno (admin)
+  const estornoDiv = document.getElementById('comp-ver-estorno');
+  if (estornoDiv) estornoDiv.style.display = (isAdminComp() && c.status === 'baixado') ? 'block' : 'none';
+
+  openOv('ov-comp-ver');
 }
 
-// Para iOS (Safari não suporta beforeinstallprompt)
-function isIOS() {
-  return /iphone|ipad|ipod/i.test(navigator.userAgent);
+// ── Dar baixa em clientes selecionados ───────────────────────────
+async function darBaixaLote() {
+  const checks = document.querySelectorAll('#comp-baixa-lista input:checked');
+  if (!checks.length) { toast('Selecione ao menos 1 cliente.', 'err'); return; }
+  const ids = Array.from(checks).map(c => c.value);
+  await _processarBaixa(ids);
 }
 
-function isInStandaloneMode() {
-  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+async function darBaixaTodos() {
+  const c = _compCache.find(x => x._docId === _compAtualId);
+  if (!c) return;
+  const ids = (c.clientes||[]).filter(cl => cl.statusBaixa !== 'baixado').map(cl => cl.id);
+  if (!ids.length) { toast('Todos já foram baixados.', 'ok'); return; }
+  await _processarBaixa(ids);
 }
 
-if(isIOS() && !isInStandaloneMode() && !localStorage.getItem('pwa_dismissed')) {
-  setTimeout(() => {
-    document.getElementById('pwa-banner').style.display = 'block';
-    // Muda texto para instrução do iOS
-    document.querySelector('#pwa-banner .flex-shrink-0 + div + div button:last-child').textContent = 'Ver como';
-    document.querySelector('#pwa-banner div div:last-child').textContent = 'Toque em ⎙ e depois "Adicionar à Tela de Início"';
-    document.getElementById('pwa-banner').querySelector('button:last-child').onclick = dismissPWA;
-  }, 3000);
+async function _processarBaixa(clienteIds) {
+  if (!_compAtualId) return;
+  const c = _compCache.find(x => x._docId === _compAtualId);
+  if (!c) return;
+  const agora = new Date().toISOString();
+
+  // Evitar baixas concorrentes — buscar versão atual do Firestore
+  const compAtual = await window._fb.getDoc('comprovantes', _compAtualId);
+  if (!compAtual) { toast('Comprovante não encontrado.', 'err'); return; }
+
+  const novasClientes = compAtual.clientes.map(cl => {
+    if (clienteIds.includes(String(cl.id))) {
+      return { ...cl, statusBaixa: 'baixado' };
+    }
+    return cl;
+  });
+  const novasBaixas = [
+    ...(compAtual.baixas||[]),
+    ...clienteIds.map(id => {
+      const cl = compAtual.clientes.find(x => String(x.id) === String(id));
+      return { id, nomeCliente: cl?.nome||id, por: CU.nome, porEmail: CU.email, em: agora };
+    })
+  ];
+  const todoBaixado = novasClientes.every(cl => cl.statusBaixa === 'baixado');
+  const novoStatus = todoBaixado ? 'baixado' : 'aguardando';
+
+  try {
+    await window._fb.setDoc('comprovantes', _compAtualId, {
+      ...compAtual, clientes: novasClientes, baixas: novasBaixas, status: novoStatus
+    });
+    await addLog('Baixa de comprovante', `Ref: ${c.ref} | Clientes: ${clienteIds.join(', ')} | Por: ${CU.nome}`);
+    toast('Baixa registrada com sucesso!', 'ok');
+    closeOv('ov-comp-ver');
+    showSec('comprovantes');
+  } catch (e) {
+    toast('Erro ao registrar baixa: ' + e.message, 'err');
+  }
 }
 
+// ── Rejeitar comprovante ─────────────────────────────────────────
+function openRejeitarComp() {
+  const el = document.getElementById('comp-motivo-rejeicao');
+  if (el) el.value = '';
+  closeOv('ov-comp-ver');
+  openOv('ov-comp-rejeitar');
+}
 
+async function confirmarRejeicao() {
+  const motivo = document.getElementById('comp-motivo-rejeicao')?.value.trim();
+  if (!motivo) { toast('Informe o motivo da rejeição.', 'err'); return; }
+  if (!_compAtualId) return;
+  const c = _compCache.find(x => x._docId === _compAtualId);
+  if (!c) return;
+  try {
+    const compAtual = await window._fb.getDoc('comprovantes', _compAtualId);
+    await window._fb.setDoc('comprovantes', _compAtualId, {
+      ...compAtual,
+      status: 'rejeitado',
+      motivoRejeicao: motivo,
+      rejeitadoPor: CU.nome,
+      rejeitadoPorEmail: CU.email,
+      rejeitadoEm: new Date().toISOString()
+    });
+    await addLog('Rejeição de comprovante', `Ref: ${c.ref} | Motivo: ${motivo} | Por: ${CU.nome}`);
+    toast('Comprovante rejeitado.', 'ok');
+    closeOv('ov-comp-rejeitar');
+    showSec('comprovantes');
+  } catch (e) {
+    toast('Erro ao rejeitar: ' + e.message, 'err');
+  }
+}
 
+// ── Estornar baixa (admin) ────────────────────────────────────────
+async function estornarComp() {
+  if (!_compAtualId) return;
+  if (!confirm('Reverter a baixa deste comprovante? Todos os clientes voltarão para "Aguardando baixa".')) return;
+  const motivo = prompt('Motivo do estorno:') || '';
+  const c = _compCache.find(x => x._docId === _compAtualId);
+  if (!c) return;
+  try {
+    const compAtual = await window._fb.getDoc('comprovantes', _compAtualId);
+    const novasClientes = compAtual.clientes.map(cl => ({ ...cl, statusBaixa: 'aguardando' }));
+    const estornos = [...(compAtual.estornos||[]), { por: CU.nome, em: new Date().toISOString(), motivo }];
+    await window._fb.setDoc('comprovantes', _compAtualId, {
+      ...compAtual, clientes: novasClientes, status: 'aguardando', baixas: [], estornos
+    });
+    await addLog('Estorno de comprovante', `Ref: ${c.ref} | Motivo: ${motivo} | Por: ${CU.nome}`);
+    toast('Estorno realizado. Comprovante voltou para aguardando.', 'ok');
+    closeOv('ov-comp-ver');
+    showSec('comprovantes');
+  } catch (e) {
+    toast('Erro ao estornar: ' + e.message, 'err');
+  }
+}
 
+async function estornarCompCard(compId) {
+  _compAtualId = compId;
+  await estornarComp();
+}
+
+// ── Integração com initApp ────────────────────────────────────────
+function initComprovantes() {
+  startCompListener();
+  // Mostrar aba apenas para quem tem acesso
+  const temAcesso = podeAnexarComp() || podeBaixar();
+  const tabs = ['tnav-comp','bnav-comp'];
+  tabs.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = temAcesso ? '' : 'none';
+  });
+  // Botão novo comprovante
+  const btnNovo = document.getElementById('btn-novo-comp');
+  if (btnNovo) btnNovo.style.display = podeAnexarComp() ? '' : 'none';
+  // Inicializar badge
+  atualizarBadgeComp();
+}
+
+// ── Integração com showSec ────────────────────────────────────────
+const _origShowSec = showSec;
+showSec = function(s) {
+  _origShowSec(s);
+  // Adicionar sec-comprovantes ao loop de toggle
+  const secComp = document.getElementById('sec-comprovantes');
+  if (secComp) secComp.classList.toggle('on', s === 'comprovantes');
+  if (s === 'comprovantes') renderComprovantes();
+};
+
+// ── getDoc no wrapper (se não existir) ───────────────────────────
+if (window._fb && !window._fb.getDoc) {
+  window._fb.getDoc = function(col, id) {
+    return window._fb._fs.collection(col).doc(String(id)).get().then(d =>
+      d.exists ? Object.assign({ _docId: d.id }, d.data()) : null
+    );
+  };
+}
 </script>
-</body>
-</html>
+</body></html>
