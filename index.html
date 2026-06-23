@@ -61,7 +61,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="v2026.06.18.1337">
+<meta name="app-version" content="v2026.06.21.2112">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Salim & Salim — Gestão de Clientes</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -123,6 +123,11 @@
         onSnapshotOrdered: function(col, field, dir, lim, cb){
           return fs.collection(col).orderBy(field,dir).limit(lim).onSnapshot(function(s){
             cb(s.docs.map(function(d){ return Object.assign({_docId:d.id}, d.data()); }));
+          });
+        },
+        getDoc: function(col, docId){
+          return fs.collection(col).doc(String(docId)).get().then(function(d){
+            return d.exists ? Object.assign({_docId:d.id}, d.data()) : null;
           });
         }
       };
@@ -618,7 +623,7 @@ tbody tr:last-child td{border-bottom:none;}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:14px;">
       <div class="tlogo">Salim &amp; Salim <small>Gestão de Clientes</small></div>
-      <div id="version-badge" style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(201,168,76,.15);color:#c9a84c;border:1px solid rgba(201,168,76,.3);font-weight:700;white-space:nowrap" title="Versão do sistema">⚡ v2026.06.20.2218 · 20/06/2026 22:18</div>
+      <div id="version-badge" style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(201,168,76,.15);color:#c9a84c;border:1px solid rgba(201,168,76,.3);font-weight:700;white-space:nowrap" title="Versão do sistema">⚡ v2026.06.21.2112 · 21/06/2026 21:12</div>
       <div id="conn-status" style="font-size:11px;padding:3px 10px;border-radius:20px;background:var(--gbg);color:var(--green);display:none;">🟢 Online</div>
       <div class="tnav">
         <div class="tnav-btn on" data-s="clientes" onclick="showSec('clientes')">Clientes</div>
@@ -1413,7 +1418,7 @@ function fD(d){if(!d||d.length<8)return'—';if(/^\d{4}-\d{2}-\d{2}/.test(d)){co
 function nxtId(arr){return arr.length>0?Math.max(...arr.map(x=>x.id||0))+1:1;}
 
 // ── PUBLICAR NO GITHUB ──
-const GH_TOKEN='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';
+const GH_TOKEN='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';
 const GH_REPO='iconeautomacao/golden-halva-e966a9';
 const GH_FILE='index.html';
 const GH_BRANCH='main';
@@ -2880,8 +2885,13 @@ async function _processarBaixa(clienteIds) {
   if (!c) return;
   const agora = new Date().toISOString();
 
-  // Evitar baixas concorrentes — buscar versão atual do Firestore
-  const compAtual = await window._fb.getDoc('comprovantes', _compAtualId);
+  // Evitar baixas concorrentes — buscar versão atual do Firestore.
+  // Usa timeout com fallback pro cache local (já sincronizado via onSnapshot),
+  // porque o .get() pode travar indefinidamente quando o Firestore persistence
+  // (multi-aba) está com lock — sem isso, o clique em "Dar Baixa" nunca completa.
+  const timeoutPromise = new Promise(resolve => setTimeout(() => resolve(null), 8000));
+  let compAtual = await Promise.race([window._fb.getDoc('comprovantes', _compAtualId), timeoutPromise]);
+  if (!compAtual) compAtual = c;
   if (!compAtual) { toast('Comprovante não encontrado.', 'err'); return; }
 
   const novasClientes = compAtual.clientes.map(cl => {
@@ -2994,14 +3004,7 @@ function initComprovantes() {
 // ── Integração com showSec (via patch direto no loop) ────────────
 // A integração é feita pelo showSec original que já inclui 'comprovantes' no array
 
-// ── getDoc no wrapper (se não existir) ───────────────────────────
-if (window._fb && !window._fb.getDoc) {
-  window._fb.getDoc = function(col, id) {
-    return window._fb._fs.collection(col).doc(String(id)).get().then(d =>
-      d.exists ? Object.assign({ _docId: d.id }, d.data()) : null
-    );
-  };
-}
+// getDoc implementado diretamente no initFB() — sem necessidade de patch aqui
 
 
 </script>
