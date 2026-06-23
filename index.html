@@ -1418,14 +1418,27 @@ function fD(d){if(!d||d.length<8)return'—';if(/^\d{4}-\d{2}-\d{2}/.test(d)){co
 function nxtId(arr){return arr.length>0?Math.max(...arr.map(x=>x.id||0))+1:1;}
 
 // ── PUBLICAR NO GITHUB ──
-const GH_TOKEN='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';
+// O token NUNCA é salvo no código-fonte (risco de qualquer visitante roubá-lo via DevTools).
+// É pedido na hora e guardado só em sessionStorage (memória da aba, some ao fechar o navegador).
 const GH_REPO='iconeautomacao/golden-halva-e966a9';
 const GH_FILE='index.html';
 const GH_BRANCH='main';
 
+function getGhToken(){
+  let t=sessionStorage.getItem('gh_token');
+  if(!t){
+    t=prompt('Cole o token do GitHub (Personal Access Token com escopo "repo"):\n\nEle só fica salvo nesta aba, nunca é gravado em arquivo.');
+    if(t)sessionStorage.setItem('gh_token',t.trim());
+  }
+  return t?t.trim():null;
+}
+
 async function publicarNoGitHub(){
   if(CU?.role!=='admin'){toast('Apenas o admin pode publicar atualizações.','err');return;}
   if(!confirm('🚀 Publicar nova versão no GitHub?\n\nIsso irá:\n• Fazer backup automático dos dados\n• Enviar o sistema atualizado ao GitHub\n• Netlify atualizará em ~30 segundos'))return;
+
+  const GH_TOKEN=getGhToken();
+  if(!GH_TOKEN){toast('Publicação cancelada: token não informado.','err');return;}
 
   const btn=document.getElementById('btn-publicar');
   if(btn){btn.disabled=true;btn.textContent='⏳ Publicando...';}
@@ -1439,6 +1452,7 @@ async function publicarNoGitHub(){
     const shaRes=await fetch(`https://api.github.com/repos/${GH_REPO}/contents/${GH_FILE}?ref=${GH_BRANCH}`,{
       headers:{'Authorization':`token ${GH_TOKEN}`,'Accept':'application/vnd.github.v3+json'}
     });
+    if(shaRes.status===401){sessionStorage.removeItem('gh_token');throw new Error('Token inválido ou expirado. Tente publicar novamente para informar um novo token.');}
     if(!shaRes.ok)throw new Error('Não foi possível acessar o repositório. Verifique o token.');
     const shaData=await shaRes.json();
     const sha=shaData.sha;
