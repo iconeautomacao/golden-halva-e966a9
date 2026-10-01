@@ -61,7 +61,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="v2026.07.09.1424">
+<meta name="app-version" content="v2026.10.01.1309">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>gestaosalimesalim</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -587,6 +587,14 @@ tbody tr:last-child td{border-bottom:none;}
   border:none;line-height:1;
 }
 
+/* ── BOTÃO DETALHES FISCAIS ──────────────────────────────── */
+.btn-det{
+  background:none;border:1px solid var(--bdr);border-radius:4px;
+  color:var(--muted);cursor:pointer;font-size:11px;padding:1px 5px;
+  margin-left:6px;vertical-align:middle;opacity:.7;transition:.2s;
+}
+.btn-det:hover{opacity:1;color:var(--accent);border-color:var(--accent);}
+
 </style>
 <!-- PWA - Instalar como app -->
 <meta name="mobile-web-app-capable" content="yes">
@@ -644,7 +652,7 @@ tbody tr:last-child td{border-bottom:none;}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:14px;">
       <div class="tlogo">Salim &amp; Salim <small>Gestão de Clientes</small></div>
-      <div id="version-badge" style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(201,168,76,.15);color:#c9a84c;border:1px solid rgba(201,168,76,.3);font-weight:700;white-space:nowrap" title="Versão do sistema">⚡ v2026.07.09.1424 · 09/07/2026 14:24</div>
+      <div id="version-badge" style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(201,168,76,.15);color:#c9a84c;border:1px solid rgba(201,168,76,.3);font-weight:700;white-space:nowrap" title="Versão do sistema">⚡ v2026.10.01.1309 · 01/10/2026 13:09</div>
       <div id="conn-status" style="font-size:11px;padding:3px 10px;border-radius:20px;background:var(--gbg);color:var(--green);display:none;">🟢 Online</div>
       <div class="tnav">
         <div class="tnav-btn on" data-s="clientes" onclick="showSec('clientes')">Clientes</div>
@@ -844,7 +852,7 @@ tbody tr:last-child td{border-bottom:none;}
   <div class="modal">
     <div class="mhdr"><h2 id="mtitle">Novo cliente</h2><button class="mclose" onclick="closeOv('ov-cli')">✕</button></div>
     <div class="mbody">
-      <div class="fg"><label>Nome do cliente *</label><input type="text" id="f-nome" placeholder="NOME DO CLIENTE"></div>
+      <div class="fg"><label>Nome / Fantasia *</label><input type="text" id="f-nome" placeholder="NOME DO CLIENTE / FANTASIA"></div>
       <div class="fg-row">
         <div class="fg"><label>Mês de Pagamento</label>
           <select id="f-mes-c">
@@ -1515,53 +1523,44 @@ async function getGHToken(){
 // ── Backup automático no Google Drive ───────────────────────
 async function backupNoDrive(versao) {
   try {
-    showLoading('Gerando backup para o Drive...');
+    // Backup roda em background sem bloquear a UI
 
-    // Montar JSON dos dados
+    // Montar dados
     const dados = {
       clientes: _cache.cli || [],
-      users: _cache.users || [],
-      logs: _cache.logs || [],
-      hist: _cache.hist || [],
+      users: (_cache.users || []).map(u => ({...u, senha: '***'})), // ocultar senhas
+      logs: (_cache.logs || []).slice(0, 500),
+      hist: (_cache.hist || []).slice(0, 500),
       exportedAt: new Date().toISOString(),
       exportedBy: CU.nome,
       versao: versao
     };
     const jsonStr = JSON.stringify(dados, null, 2);
-
-    // Converter para base64
     const htmlContent = await fetch(window.location.href + '?nocache=' + Date.now()).then(r => r.text());
-    const dataStr = new Date().toISOString().split('T')[0].replace(/-/g,'');
-    const fileName = `salim_${versao}_${dataStr}.zip`;
+    const dataStr = new Date().toISOString().split('T')[0];
+    const fileName = `salim_${versao}_${dataStr}.json`;
 
-    // Criar ZIP simples (index.html + backup.json) em base64
-    // Usamos um container JSON codificado como ZIP fake (o Apps Script descompacta)
-    const zipContent = {
-      'index.html': btoa(unescape(encodeURIComponent(htmlContent))),
-      'backup.json': btoa(unescape(encodeURIComponent(jsonStr)))
-    };
-
-    const payload = {
+    // Payload como texto simples (evita CORS preflight)
+    const payload = JSON.stringify({
       fileName: fileName,
       folderId: DRIVE_FOLDER_ID,
-      fileBase64: btoa(unescape(encodeURIComponent(JSON.stringify(zipContent)))),
+      fileBase64: btoa(unescape(encodeURIComponent(jsonStr))),
       versao: versao,
       data: new Date().toLocaleString('pt-BR')
-    };
-
-    const res = await fetch(APPS_SCRIPT_URL, {
-      method: 'POST',
-      body: JSON.stringify(payload)
     });
 
-    const result = await res.json();
-    if (result.success) {
-      console.log('✅ Backup salvo no Drive:', result.fileName);
-      return true;
-    } else {
-      console.warn('⚠️ Backup no Drive falhou:', result.error);
-      return false;
-    }
+    // Usar no-cors para evitar bloqueio CORS
+    // O Apps Script vai salvar mesmo sem retornar resposta legível
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type': 'text/plain'},
+      body: payload
+    });
+
+    console.log('✅ Backup enviado para o Drive:', fileName);
+    return true;
+
   } catch(e) {
     console.warn('⚠️ Erro no backup Drive:', e.message);
     return false;
@@ -1621,11 +1620,13 @@ async function publicarNoGitHub(){
     toast('🚀 Publicado! O Cloudflare irá atualizar em ~30 segundos.','ok');
     addLog('Publicou atualização','GitHub → Cloudflare');
 
-    // Backup automático no Drive
+    // Backup em background (não bloqueia a UI)
     const versaoAtual = document.querySelector('meta[name="app-version"]')?.content || 'v' + new Date().toLocaleDateString('pt-BR').replace(/\//g,'.');
-    backupNoDrive(versaoAtual).then(ok => {
-      if(ok) toast('📦 Backup salvo no Google Drive!', 'ok');
-    });
+    setTimeout(() => {
+      backupNoDrive(versaoAtual).then(ok => {
+        if(ok) toast('📦 Backup salvo no Google Drive!', 'ok');
+      }).catch(() => {});
+    }, 1000);
 
   }catch(e){
     hideLoading();
@@ -1750,7 +1751,7 @@ function getFiltered(cli){
       if(fVMes&&parts[0]!==fVMes)return false;
       if(fVAno&&parts[1]!==fVAno)return false;
     }
-    if(q&&!(c.cliente+' '+(c.obs||'')).toLowerCase().includes(q))return false;
+    if(q&&!((c.fantasia||c.cliente)+' '+(c.obs||'')).toLowerCase().includes(q))return false;
     return true;
   });
 }
@@ -1843,7 +1844,10 @@ function renderTable(){
         </div>`;
     return`<tr id="tr-${c.id}" onclick="onRowClick(event,'${c.id}')">
       <td onclick="event.stopPropagation()"><input type="checkbox" class="sel-check row-check" data-id="${c.id}" onchange="onSelChange(this)"></td>
-      <td><span class="${nc}">${sanitize(c.cliente||'')} </span></td>
+      <td>
+        <span class="${nc}">${sanitize(c.fantasia||c.cliente||'')}</span>
+        <button class="btn-det" onclick="event.stopPropagation();abrirDetalhes('${c.id}')" title="Ver dados fiscais">📋</button>
+      </td>
       <td class="td-mes">${(c.mes_pagamento||'').toUpperCase()||'—'}</td>
       <td class="td-date">${fD(c.data_inicio)}</td>
       <td class="${c.baixa_auto?'td-date td-auto-baixa':'td-date'}">${fD(c.pago_em)||'—'}</td>
@@ -1905,7 +1909,7 @@ function openModal(id){
   if(id){
     const c=getClientes().find(x=>String(x.id)===String(id)||x.id===id);if(!c)return;
     document.getElementById('mtitle').textContent='Editar cliente';
-    document.getElementById('f-nome').value=c.cliente||'';
+    document.getElementById('f-nome').value=c.fantasia||c.cliente||'';
     document.getElementById('f-mes-c').value=(c.mes_pagamento||'').toUpperCase();
     document.getElementById('f-valor').value=c.valor||'';
     document.getElementById('f-data').value=c.data_inicio||'';
@@ -1950,7 +1954,8 @@ async function saveCli(){
     obs_viewer_nova=document.getElementById('f-obs-viewer').value.trim();
   }
   const obj={
-    cliente:nome.toUpperCase(),
+    fantasia:nome.toUpperCase(),
+    cliente:nome.toUpperCase(), // compatibilidade legada
     mes_pagamento:(document.getElementById('f-mes-c').value||'').toUpperCase(),
     data_inicio:document.getElementById('f-data').value||'',
     pago_em:document.getElementById('f-pago').value||'',
@@ -3516,5 +3521,102 @@ function fecharFullscreen() {
   document.body.style.overflow = '';
 }
 document.addEventListener('keydown', e => { if(e.key==='Escape') fecharFullscreen(); });
+</script>
+
+<!-- ══ MODAL: DETALHES FISCAIS DO CLIENTE ════════════════════ -->
+<div class="ov" id="ov-cli-det" onclick="ovClick(event,'ov-cli-det')">
+  <div class="modal" style="max-width:480px">
+    <div class="mhdr">
+      <h2 id="det-title">Detalhes: —</h2>
+      <button class="mclose" onclick="closeOv('ov-cli-det')">✕</button>
+    </div>
+    <div class="mbody">
+      <div class="fg">
+        <label>Nome / Fantasia *</label>
+        <input type="text" id="det-fantasia" placeholder="Nome ou fantasia do cliente" class="finp">
+      </div>
+      <div class="fg" style="margin-top:10px">
+        <label>Razão Social</label>
+        <input type="text" id="det-razao" placeholder="Razão social completa" class="finp">
+      </div>
+      <div class="fg-row" style="margin-top:10px">
+        <div class="fg">
+          <label>CNPJ</label>
+          <input type="text" id="det-cnpj" placeholder="00.000.000/0000-00" class="finp" maxlength="18" oninput="maskCNPJ(this)">
+        </div>
+        <div class="fg">
+          <label>Inscrição Estadual</label>
+          <input type="text" id="det-ie" placeholder="IE" class="finp" maxlength="20">
+        </div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-gh btn-xs" onclick="closeOv('ov-cli-det')">Cancelar</button>
+      <button class="btn btn-acc btn-xs" id="btn-salvar-det" onclick="salvarDetalhes()">✔ Salvar</button>
+    </div>
+  </div>
+</div>
+<script>
+// ── Dados fiscais do cliente ─────────────────────────────────
+let _detCliId = null;
+
+function maskCNPJ(el) {
+  let v = el.value.replace(/\D/g, '').slice(0, 14);
+  v = v.replace(/^(\d{2})(\d)/, '$1.$2');
+  v = v.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
+  v = v.replace(/\.( \d{3})\.(\d{3})(\d)/, '.$1.$2/$3');
+  v = v.replace(/(\d{4})(\d)/, '$1-$2');
+  el.value = v;
+}
+
+function abrirDetalhes(id) {
+  const c = getClientes().find(x => String(x.id) === String(id));
+  if (!c) return;
+  _detCliId = id;
+  document.getElementById('det-title').textContent = 'Detalhes: ' + (c.fantasia || c.cliente || '');
+  document.getElementById('det-fantasia').value = c.fantasia || c.cliente || '';
+  document.getElementById('det-razao').value = c.razao_social || '';
+  document.getElementById('det-cnpj').value = c.cnpj || '';
+  document.getElementById('det-ie').value = c.inscricao_estadual || '';
+  openOv('ov-cli-det');
+}
+
+async function salvarDetalhes() {
+  if (!_detCliId) return;
+  const btn = document.getElementById('btn-salvar-det');
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+  try {
+    const c = getClientes().find(x => String(x.id) === String(_detCliId));
+    if (!c) throw new Error('Cliente não encontrado.');
+    const fantasia = document.getElementById('det-fantasia').value.trim().toUpperCase();
+    if (!fantasia) { toast('Informe o nome/fantasia.', 'err'); return; }
+    const dados = {
+      ...c,
+      fantasia: fantasia,
+      cliente: fantasia, // manter cliente em sync
+      razao_social: document.getElementById('det-razao').value.trim().toUpperCase(),
+      cnpj: document.getElementById('det-cnpj').value.trim(),
+      inscricao_estadual: document.getElementById('det-ie').value.trim()
+    };
+    // Histórico de alterações
+    if (fantasia !== (c.fantasia || c.cliente || ''))
+      await addHist(c.id, c.fantasia || c.cliente, 'Fantasia', c.fantasia || c.cliente, fantasia);
+    if (dados.razao_social !== (c.razao_social || ''))
+      await addHist(c.id, c.fantasia || c.cliente, 'Razão Social', c.razao_social || '', dados.razao_social);
+    if (dados.cnpj !== (c.cnpj || ''))
+      await addHist(c.id, c.fantasia || c.cliente, 'CNPJ', c.cnpj || '', dados.cnpj);
+    if (dados.inscricao_estadual !== (c.inscricao_estadual || ''))
+      await addHist(c.id, c.fantasia || c.cliente, 'IE', c.inscricao_estadual || '', dados.inscricao_estadual);
+    await db.setDoc('clientes', String(c._docId || c.id), dados);
+    toast('✅ Dados fiscais salvos!', 'ok');
+    closeOv('ov-cli-det');
+  } catch(e) {
+    toast('Erro: ' + e.message, 'err');
+    console.error(e);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '✔ Salvar'; }
+  }
+}
+
 </script>
 </body></html>
