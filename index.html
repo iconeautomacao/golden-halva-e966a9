@@ -61,7 +61,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="v2026.10.06.1714">
+<meta name="app-version" content="v2026.10.01.1309">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>gestaosalimesalim</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -652,7 +652,7 @@ tbody tr:last-child td{border-bottom:none;}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:14px;">
       <div class="tlogo">Salim &amp; Salim <small>Gestão de Clientes</small></div>
-      <div id="version-badge" style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(201,168,76,.15);color:#c9a84c;border:1px solid rgba(201,168,76,.3);font-weight:700;white-space:nowrap" title="Versão do sistema">⚡ v2026.10.06.1714 · 06/10/2026 17:14</div>
+      <div id="version-badge" style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(201,168,76,.15);color:#c9a84c;border:1px solid rgba(201,168,76,.3);font-weight:700;white-space:nowrap" title="Versão do sistema">⚡ v2026.10.01.1309 · 01/10/2026 13:09</div>
       <div id="conn-status" style="font-size:11px;padding:3px 10px;border-radius:20px;background:var(--gbg);color:var(--green);display:none;">🟢 Online</div>
       <div class="tnav">
         <div class="tnav-btn on" data-s="clientes" onclick="showSec('clientes')">Clientes</div>
@@ -744,8 +744,7 @@ tbody tr:last-child td{border-bottom:none;}
     <button class="btn btn-gh btn-xs" id="btn-limpar" onclick="resetF()">✕ Limpar</button>
     <button class="btn btn-acc btn-xs" id="btn-novo" onclick="openModal()">＋ Novo cliente</button>
     <button class="btn btn-out btn-xs" id="btn-excel" onclick="exportXLS()">⬇ Baixar Excel</button>
-    <button class="btn btn-gh btn-xs" id="btn-reajuste" onclick="abrirReajuste()" title="Reajuste anual de valores" style="display:none">💰 Reajuste</button>
-      <button class="btn btn-gh btn-xs" id="btn-backup" onclick="exportDB()" title="Baixar backup completo">&#x1F4E4; Backup</button>
+    <button class="btn btn-gh btn-xs" id="btn-backup" onclick="exportDB()" title="Baixar backup completo">&#x1F4E4; Backup</button>
     <button class="btn btn-acc btn-xs" id="btn-publicar" onclick="publicarNoGitHub()" title="Enviar nova versão para o GitHub e atualizar o sistema automaticamente">🚀 Publicar</button>
     <button class="btn btn-gh btn-xs" id="btn-importar" onclick="importDB()" title="Importar backup">&#x1F4E5; Importar</button>
     <button class="btn btn-gh btn-xs" id="btn-restaurar" onclick="if(confirm('Restaurar dados originais da planilha?')){resetData();}" title="Restaurar dados originais">↺ Restaurar</button>
@@ -868,7 +867,7 @@ tbody tr:last-child td{border-bottom:none;}
         <div class="fg"><label>Valor (R$)</label><input type="text" id="f-valor" placeholder="607,20"></div>
       </div>
       <div class="fg-row">
-        <div class="fg"><label>Data de Início</label><input type="date" id="f-data" oninput="autoVencimentoInicio()"></div>
+        <div class="fg"><label>Data de Início</label><input type="date" id="f-data"></div>
         <div class="fg"><label>Data de Recebimento</label><input type="date" id="f-pago" oninput="autoVencimento()"></div>
       </div>
       <div class="fg" id="fg-vencimento"><label>📅 Mês/Ano de Vencimento <span style="font-size:11px;font-weight:400;color:var(--muted);">(gerado automaticamente)</span></label><input type="text" id="f-vencimento" placeholder="Ex: 08/2026" title="Gerado automaticamente ao alterar Data de Recebimento"></div>
@@ -880,35 +879,6 @@ tbody tr:last-child td{border-bottom:none;}
         </div>
       </div>
       <div class="fg" id="fg-obs-admin"><label>Observações (Admin)</label><textarea id="f-obs-admin" placeholder="Observações do administrador..."></textarea></div>
-
-      <!-- Campos de lojas e cálculo — visíveis conforme permissão -->
-      <div id="fg-lojas-section" style="display:none;border-top:1px solid var(--bdr);margin-top:12px;padding-top:12px">
-        <div style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px;">📊 Dados de Cobrança</div>
-        <div class="fg-row">
-          <div class="fg">
-            <label>Nº de Lojas Total</label>
-            <input type="number" id="f-num-lojas" min="1" max="99" placeholder="1" oninput="calcValorLojas()">
-          </div>
-          <div class="fg">
-            <label>Lojas Cobradas</label>
-            <input type="number" id="f-lojas-cobradas" min="1" max="99" placeholder="1" oninput="calcValorLojas()">
-          </div>
-        </div>
-        <div class="fg-row">
-          <div class="fg">
-            <label>Salário Mín. Referência (R$)</label>
-            <input type="number" id="f-salario-ref" step="0.01" placeholder="1518.00" oninput="calcValorLojas()">
-          </div>
-          <div class="fg">
-            <label>Valor Calculado (40%)</label>
-            <input type="text" id="f-valor-calc" readonly placeholder="—" style="background:var(--surf2);color:var(--accent);font-weight:700;cursor:default">
-          </div>
-        </div>
-        <div class="fg" id="fg-obs-negociacao" style="display:none">
-          <label>Obs. Negociação</label>
-          <textarea id="f-obs-negociacao" placeholder="Ex: Negociado com Salim — cobrar só 1 loja pois cliente não possui loja física no CNPJ X..." rows="2"></textarea>
-        </div>
-      </div>
       <div class="fg" id="fg-obs-viewer" style="display:none"><label>Observações</label>
         <div id="obs-admin-display" style="background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px 12px;font-size:14px;color:var(--muted);min-height:40px;margin-bottom:8px;white-space:pre-wrap;line-height:1.5;"></div>
         <textarea id="f-obs-viewer" placeholder="Adicionar nova observação..."></textarea>
@@ -1000,9 +970,6 @@ tbody tr:last-child td{border-bottom:none;}
           <label class="perm-opt"><input type="checkbox" id="perm-data_inicio"><span>&#x1F4C4; Data In&#237;cio</span></label>
           <label class="perm-opt"><input type="checkbox" id="perm-pode_comprovante"><span>&#x1F4CE; Cadastrar Comprovantes</span></label>
           <label class="perm-opt"><input type="checkbox" id="perm-pode_baixar"><span>&#x2705; Baixar Pagamentos</span></label>
-          <label class="perm-opt"><input type="checkbox" id="perm-pode_ver_lojas"><span>&#x1F4CA; Ver Dados de Cobrança</span></label>
-          <label class="perm-opt"><input type="checkbox" id="perm-pode_editar_lojas"><span>&#x270F;&#xFE0F; Editar Lojas/Cobrança</span></label>
-          <label class="perm-opt"><input type="checkbox" id="perm-pode_reajuste"><span>&#x1F4B0; Executar Reajuste Anual</span></label>
         </div>
       </div>
       <div style="background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px 12px;font-size:12px;color:var(--muted);margin-top:12px;">
@@ -1051,9 +1018,6 @@ tbody tr:last-child td{border-bottom:none;}
           <label class="perm-opt"><input type="checkbox" id="eu-perm-data_inicio"><span>&#x1F4C4; Data In&#237;cio</span></label>
           <label class="perm-opt"><input type="checkbox" id="eu-perm-pode_comprovante"><span>&#x1F4CE; Cadastrar Comprovantes</span></label>
           <label class="perm-opt"><input type="checkbox" id="eu-perm-pode_baixar"><span>&#x2705; Baixar Pagamentos</span></label>
-          <label class="perm-opt"><input type="checkbox" id="eu-perm-pode_ver_lojas"><span>&#x1F4CA; Ver Dados de Cobrança</span></label>
-          <label class="perm-opt"><input type="checkbox" id="eu-perm-pode_editar_lojas"><span>&#x270F;&#xFE0F; Editar Lojas/Cobrança</span></label>
-          <label class="perm-opt"><input type="checkbox" id="eu-perm-pode_reajuste"><span>&#x1F4B0; Executar Reajuste Anual</span></label>
         </div>
       </div>
       <div style="background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--rs);padding:10px 12px;font-size:12px;color:var(--muted);margin-top:4px;">
@@ -1100,21 +1064,6 @@ tbody tr:last-child td{border-bottom:none;}
 <div id="toast"></div>
 
 <script>// ── Sanitização XSS ──────────────────────────────────────────
-function tempoRelacionamento(dataInicio) {
-  if (!dataInicio) return '';
-  try {
-    const ini = new Date(dataInicio);
-    const hoje = new Date();
-    let anos = hoje.getFullYear() - ini.getFullYear();
-    let meses = hoje.getMonth() - ini.getMonth();
-    if (meses < 0) { anos--; meses += 12; }
-    if (anos > 0 && meses > 0) return `${anos}a ${meses}m`;
-    if (anos > 0) return `${anos} ano${anos>1?'s':''}`;
-    if (meses > 0) return `${meses} ${meses===1?'mês':'meses'}`;
-    return 'novo';
-  } catch(e) { return ''; }
-}
-
 function sanitize(str){
   if(!str)return '';
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;');
@@ -1514,9 +1463,6 @@ function initApp(){
 
   // Botões só para admin
   const adminOnlyIds=['btn-novo','btn-limpar','btn-excel','btn-backup','btn-importar','btn-restaurar','fab-novo','btn-publicar'];
-  // Botão reajuste: admin ou pode_reajuste
-  const btnReaj = document.getElementById('btn-reajuste');
-  if(btnReaj) btnReaj.style.display = (CU?.role==='admin'||CU?.permissoes?.pode_reajuste) ? '' : 'none';
   adminOnlyIds.forEach(id=>{
     const el=document.getElementById(id);
     if(el)el.style.display=isA?'':'none';
@@ -1646,9 +1592,11 @@ async function publicarNoGitHub(){
     const shaData=await shaRes.json();
     const sha=shaData.sha;
 
-    // 3. Lê o HTML atual diretamente do GitHub (evita cache do Cloudflare)
+    // 3. Lê o HTML atual desta página
     showLoading('Preparando arquivos...');
-    const encoded = shaData.content.replace(/\n/g,''); // já vem em base64 do GitHub
+    const htmlRes=await fetch(window.location.href+'?nocache='+Date.now());
+    const htmlContent=await htmlRes.text();
+    const encoded=btoa(unescape(encodeURIComponent(htmlContent)));
 
     // 4. Envia para o GitHub
     showLoading('Publicando no GitHub...');
@@ -1690,22 +1638,6 @@ async function publicarNoGitHub(){
 }
 
 // Auto-gera Mês/Ano de Vencimento a partir da Data de Recebimento (modal admin)
-function autoVencimentoInicio(){
-  // Só preenche automaticamente para novos clientes
-  if(editId !== null) return;
-  const dataIni = document.getElementById('f-data')?.value;
-  if(!dataIni) return;
-  const fVenc = document.getElementById('f-vencimento');
-  if(!fVenc || fVenc.value) return; // não sobrescreve se já preenchido
-  try{
-    const parts = dataIni.split('-');
-    let ano = parseInt(parts[0],10);
-    let mes = parseInt(parts[1],10) + 13; // +13 meses
-    if(mes > 12){ ano += Math.floor((mes-1)/12); mes = ((mes-1)%12)+1; }
-    fVenc.value = String(mes).padStart(2,'0') + '/' + ano;
-  }catch(e){}
-}
-
 function autoVencimento(){
   const val=document.getElementById('f-pago').value;
   const fv=document.getElementById('f-vencimento');
@@ -1915,8 +1847,6 @@ function renderTable(){
       <td>
         <span class="${nc}">${sanitize(c.fantasia||c.cliente||'')}</span>
         <button class="btn-det" onclick="event.stopPropagation();abrirDetalhes('${c.id}')" title="Ver dados fiscais">📋</button>
-        <button class="btn-det" onclick="event.stopPropagation();abrirHistPagamentos('${c.id}')" title="Histórico de pagamentos" style="margin-left:2px">🕐</button>
-        ${c.data_inicio?`<span title="Tempo de relacionamento" style="font-size:10px;color:var(--muted);margin-left:4px">${tempoRelacionamento(c.data_inicio)}</span>`:''}
       </td>
       <td class="td-mes">${(c.mes_pagamento||'').toUpperCase()||'—'}</td>
       <td class="td-date">${fD(c.data_inicio)}</td>
@@ -1980,24 +1910,6 @@ function openModal(id){
     const c=getClientes().find(x=>String(x.id)===String(id)||x.id===id);if(!c)return;
     document.getElementById('mtitle').textContent='Editar cliente';
     document.getElementById('f-nome').value=c.fantasia||c.cliente||'';
-  // Campos de lojas — só visível se admin ou pode_ver_lojas
-  const podeVerLojas = isA || !!(CU?.permissoes?.pode_ver_lojas);
-  const podeEditLojas = isA || !!(CU?.permissoes?.pode_editar_lojas);
-  const secLojas = document.getElementById('fg-lojas-section');
-  if(secLojas) secLojas.style.display = podeVerLojas ? '' : 'none';
-  if(document.getElementById('f-num-lojas')) document.getElementById('f-num-lojas').value = c.num_lojas||'';
-  if(document.getElementById('f-lojas-cobradas')) document.getElementById('f-lojas-cobradas').value = c.lojas_cobradas||'';
-  if(document.getElementById('f-salario-ref')) document.getElementById('f-salario-ref').value = c.salario_ref||'';
-  if(document.getElementById('f-obs-negociacao')) document.getElementById('f-obs-negociacao').value = c.obs_negociacao||'';
-  // Mostrar obs negociação se lojas cobradas < total
-  const obsNeg = document.getElementById('fg-obs-negociacao');
-  if(obsNeg) obsNeg.style.display = (c.lojas_cobradas && c.num_lojas && c.lojas_cobradas < c.num_lojas) ? '' : 'none';
-  // Readonly se sem permissão de edição
-  ['f-num-lojas','f-lojas-cobradas','f-salario-ref','f-obs-negociacao'].forEach(id=>{
-    const el = document.getElementById(id);
-    if(el){ el.readOnly = !podeEditLojas; el.style.cursor = podeEditLojas?'':'default'; el.style.background = podeEditLojas?'':'var(--surf2)'; }
-  });
-  calcValorLojas();
     document.getElementById('f-mes-c').value=(c.mes_pagamento||'').toUpperCase();
     document.getElementById('f-valor').value=c.valor||'';
     document.getElementById('f-data').value=c.data_inicio||'';
@@ -2020,20 +1932,6 @@ function openModal(id){
     if(isA) document.getElementById('f-obs-admin').value='';
     else { document.getElementById('obs-admin-display').textContent='(sem observações do admin)'; document.getElementById('f-obs-viewer').value=''; }
     selS('ativo');
-    // Limpar e configurar campos de lojas para novo cliente
-    ['f-num-lojas','f-lojas-cobradas','f-salario-ref','f-obs-negociacao'].forEach(id=>{
-      const el=document.getElementById(id);
-      if(!el)return;
-      el.value='';
-      const pEdit=isA||!!(CU?.permissoes?.pode_editar_lojas);
-      el.readOnly=!pEdit;
-      el.style.cursor=pEdit?'':'default';
-      el.style.background=pEdit?'':'var(--surf2)';
-    });
-    if(document.getElementById('f-valor-calc')) document.getElementById('f-valor-calc').value='';
-    if(document.getElementById('fg-obs-negociacao')) document.getElementById('fg-obs-negociacao').style.display='none';
-    const secL=document.getElementById('fg-lojas-section');
-    if(secL) secL.style.display=(isA||!!(CU?.permissoes?.pode_ver_lojas))?'':'none';
   }
   openOv('ov-cli');
   setTimeout(()=>document.getElementById('f-nome').focus(),80);
@@ -2063,10 +1961,6 @@ async function saveCli(){
     pago_em:document.getElementById('f-pago').value||'',
     valor:document.getElementById('f-valor').value.trim(),
     vencimento:document.getElementById('f-vencimento').value.trim(),
-    num_lojas: parseInt(document.getElementById('f-num-lojas')?.value||'0')||0,
-    lojas_cobradas: parseInt(document.getElementById('f-lojas-cobradas')?.value||'0')||0,
-    salario_ref: parseFloat(document.getElementById('f-salario-ref')?.value||'0')||0,
-    obs_negociacao: document.getElementById('f-obs-negociacao')?.value.trim()||'',
     obs_admin,
     status:fStat
   };
@@ -2374,7 +2268,7 @@ async function doNovoUser(){
   if(pw.length<4){err.style.display='block';err.textContent='Senha deve ter pelo menos 4 caracteres.';return;}
   const users=getUsers();
   if(users.find(u=>u.email.toLowerCase()===em)){err.style.display='block';err.textContent='Este email já está cadastrado.';return;}
-  const CAMPOS=['pago_em','valor','obs','status','mes_pagamento','data_inicio','pode_comprovante','pode_baixar','pode_ver_lojas','pode_editar_lojas','pode_reajuste'];
+  const CAMPOS=['pago_em','valor','obs','status','mes_pagamento','data_inicio','pode_comprovante','pode_baixar'];
   let permissoes={};
   if(role==='admin'){CAMPOS.forEach(c=>permissoes[c]=true);}
   else{CAMPOS.forEach(c=>{const el=document.getElementById('perm-'+c);permissoes[c]=el?el.checked:false;});}
@@ -2438,7 +2332,7 @@ async function openEditUser(uid){
   const permSec=document.getElementById('eu-perm-section');
   if(permSec){
     permSec.style.display=(u.role==='admin'||!showRole)?'none':'block';
-    ['pago_em','valor','obs','status','mes_pagamento','data_inicio','pode_comprovante','pode_baixar','pode_ver_lojas','pode_editar_lojas','pode_reajuste'].forEach(c=>{
+    ['pago_em','valor','obs','status','mes_pagamento','data_inicio','pode_comprovante','pode_baixar'].forEach(c=>{
       const el=document.getElementById('eu-perm-'+c);
       if(el)el.checked=u.permissoes?.[c]||false;
     });
@@ -2466,7 +2360,7 @@ async function saveEditUser(){
   if(idx<0)return;
   const old=users[idx];
   const newRole=(CU?.role==='admin'&&CU?.id!==uid)?role:old.role;
-  const CAMPOS=['pago_em','valor','obs','status','mes_pagamento','data_inicio','pode_comprovante','pode_baixar','pode_ver_lojas','pode_editar_lojas','pode_reajuste'];
+  const CAMPOS=['pago_em','valor','obs','status','mes_pagamento','data_inicio','pode_comprovante','pode_baixar'];
   let newPerms={};
   if(newRole==='admin'){CAMPOS.forEach(c=>newPerms[c]=true);}
   else{CAMPOS.forEach(c=>{const el=document.getElementById('eu-perm-'+c);newPerms[c]=el?el.checked:old.permissoes?.[c]||false;});}
@@ -2728,7 +2622,7 @@ function buildXLS(sheets,filename){
         </div>
         <img id="comp-img-preview" style="display:none;max-width:100%;max-height:260px;border-radius:8px;margin-top:6px">
       </div>
-      <input type="file" id="comp-file-input" accept="image/jpeg,image/png,application/pdf" style="display:none" onchange="onCompFileSelect(this)">
+      <input type="file" id="comp-file-input" accept="image/jpeg,image/png" style="display:none" onchange="onCompFileSelect(this)">
       <!-- Data e Valor -->
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px">
         <div>
@@ -3253,7 +3147,7 @@ async function _processarBaixa(clienteIds) {
         const dadosAtualizados = {...cliDoc, pago_em: dataBaixa, baixa_auto: true};
         if(novoVenc) dadosAtualizados.vencimento = novoVenc;
         await db.setDoc('clientes', String(cliDoc._docId||cliDoc.id), dadosAtualizados);
-        await addHist(cliDoc.id, cliDoc.cliente, 'Recebimento (auto)', cliDoc.pago_em||'', dataBaixa); // ISO para vincular com comprovante
+        await addHist(cliDoc.id, cliDoc.cliente, 'Recebimento (auto)', fD(cliDoc.pago_em||''), fD(dataBaixa));
       }
     }
 
@@ -3393,7 +3287,7 @@ if (window._fb && !window._fb.getDoc) {
       <div class="upload-zone" id="lote-upload-zone" onclick="document.getElementById('lote-file-inp').click()">
         📷 Anexar foto do extrato/comprovante (JPG ou PNG · máx. 5MB)
       </div>
-      <input type="file" id="lote-file-inp" accept="image/jpeg,image/png,application/pdf" style="display:none" onchange="onLoteFileSelect(this)">
+      <input type="file" id="lote-file-inp" accept="image/jpeg,image/png" style="display:none" onchange="onLoteFileSelect(this)">
       <img id="lote-img-preview" style="display:none;max-width:100%;max-height:150px;border-radius:6px;margin-top:8px;object-fit:contain">
     </div>
     <div class="mfoot">
@@ -3496,8 +3390,8 @@ function openBaixaLote() {
 async function onLoteFileSelect(input) {
   const file = input.files[0];
   if (!file) return;
-  if (!['image/jpeg', 'image/png', 'application/pdf'].includes(file.type)) {
-    toast('Use JPG, PNG ou PDF.', 'err'); return;
+  if (!['image/jpeg', 'image/png'].includes(file.type)) {
+    toast('Use JPG ou PNG.', 'err'); return;
   }
   if (file.size > 5 * 1024 * 1024) {
     toast('Imagem muito grande. Máx. 5MB.', 'err'); return;
@@ -3507,23 +3401,7 @@ async function onLoteFileSelect(input) {
   const b = new Uint8Array(hdr);
   const isJPG = b[0]===0xFF && b[1]===0xD8;
   const isPNG = b[0]===0x89 && b[1]===0x50;
-  const isPDF = b[0]===0x25 && b[1]===0x50 && b[2]===0x44 && b[3]===0x46;
-  if(!isJPG && !isPNG && !isPDF){ toast('Arquivo inválido. Use JPG, PNG ou PDF.','err'); return; }
-  // PDF: não comprimir, ler diretamente como base64
-  if (file.type === 'application/pdf') {
-    const reader2 = new FileReader();
-    reader2.onload = ev => {
-      _compImgBase64 = ev.target.result;
-      const imgPreview = document.getElementById('comp-img-preview');
-      const zone = document.getElementById('comp-upload-zone');
-      const label = document.getElementById('comp-upload-label');
-      if (imgPreview) { imgPreview.style.display='none'; }
-      if (zone) zone.style.background='var(--surf2)';
-      if (label) label.innerHTML='📄 PDF selecionado: <strong>' + file.name + '</strong><br><small style="color:var(--muted)">' + (file.size/1024).toFixed(0) + ' KB</small>';
-    };
-    reader2.readAsDataURL(file);
-    return;
-  }
+  if(!isJPG && !isPNG){ toast('Arquivo inválido. Use apenas JPG ou PNG reais.','err'); return; }
   const reader = new FileReader();
   reader.onload = e => {
     // Comprimir imagem
@@ -3567,7 +3445,7 @@ async function salvarBaixaLote() {
       const dados = { ...c };
       // Registrar recebimento
       if ((c.pago_em || '') !== nd) {
-        histPromises.push(addHist(c.id, c.cliente, 'Recebimento', c.pago_em||'', nd)); // ISO para vincular
+        histPromises.push(addHist(c.id, c.cliente, 'Recebimento', fD(c.pago_em || ''), fD(nd)));
         dados.pago_em = nd;
       }
       // Atualizar vencimento
@@ -3741,179 +3619,4 @@ async function salvarDetalhes() {
 }
 
 </script>
-<script>
-// ── Cálculo automático de valor por lojas ────────────────────
-function calcValorLojas() {
-  const sal = parseFloat(document.getElementById('f-salario-ref')?.value || 0);
-  const lojas = parseInt(document.getElementById('f-lojas-cobradas')?.value || 0);
-  const total = parseInt(document.getElementById('f-num-lojas')?.value || 0);
-  const calc = document.getElementById('f-valor-calc');
-  const obsNeg = document.getElementById('fg-obs-negociacao');
-  if (sal > 0 && lojas > 0) {
-    const valor = (sal * 0.40 * lojas).toFixed(2).replace('.',',');
-    if (calc) calc.value = 'R$ ' + valor;
-  } else {
-    if (calc) calc.value = '';
-  }
-  // Mostrar obs negociação se lojas cobradas < total
-  if (obsNeg) obsNeg.style.display = (lojas > 0 && total > 0 && lojas < total) ? '' : 'none';
-}
-
-// ── Histórico de pagamentos do cliente ───────────────────────
-function abrirHistPagamentos(id) {
-  const c = getClientes().find(x => String(x.id) === String(id));
-  if (!c) return;
-  const hist = (_cache.hist || []).filter(h =>
-    String(h.cId) === String(id) && h.campo === 'Recebimento (auto)'
-  );
-  const histManual = (_cache.hist || []).filter(h =>
-    String(h.cId) === String(id) && h.campo === 'Recebimento'
-  );
-  const todos = [...hist, ...histManual].sort((a, b) => b.ts.localeCompare(a.ts));
-
-  const nome = c.fantasia || c.cliente || '?';
-  const el = document.getElementById('hist-pag-titulo');
-  const lista = document.getElementById('hist-pag-lista');
-  if (el) el.textContent = 'Histórico: ' + nome;
-  if (lista) {
-    if (!todos.length) {
-      lista.innerHTML = '<div style="color:var(--muted);text-align:center;padding:20px">Nenhum pagamento registrado ainda.</div>';
-    } else {
-      lista.innerHTML = todos.map(h => {
-        const data = new Date(h.ts).toLocaleString('pt-BR');
-        // Vincular comprovante: comparar dataPgto (ISO) com h.depois (ISO agora)
-        const comp = (_compCache || []).find(cp =>
-          cp.clientes?.some(cl => String(cl.id) === String(id)) &&
-          (cp.dataPgto === h.depois || cp.dataPgto === h.antes || fD(cp.dataPgto) === h.depois)
-        );
-        // Buscar valor: no comprovante ou no cliente atual
-        const cAtual = getClientes().find(x => String(x.id) === String(id));
-        const valorPago = comp?.valor
-          ? 'R$ ' + parseFloat(comp.valor).toFixed(2).replace('.',',')
-          : (cAtual?.valor ? 'R$ ' + parseFloat(cAtual.valor).toFixed(2).replace('.',',') : '—');
-        const compLink = comp
-          ? `<button class="btn btn-gh btn-xs" style="font-size:10px;padding:2px 6px" onclick="verComprovante('${comp._docId}')">📎 Ver comprovante</button>`
-          : '';
-        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--surf2);border-radius:6px;margin-bottom:6px;gap:8px">
-          <div>
-            <div style="font-weight:600;color:var(--accent)">${fD(h.depois)}</div>
-            <div style="font-size:12px;color:var(--yellow);font-weight:600;margin:2px 0">${valorPago}</div>
-            <div style="font-size:11px;color:var(--muted)">${data} · por ${h.nome||'?'}</div>
-          </div>
-          ${compLink}
-        </div>`;
-      }).join('');
-    }
-  }
-  openOv('ov-hist-pag');
-}
-
-// ── Reajuste Anual ────────────────────────────────────────────
-function abrirReajuste() {
-  if (CU?.role !== 'admin' && !CU?.permissoes?.pode_reajuste) {
-    toast('Sem permissão para executar reajuste anual.', 'err'); return;
-  }
-  const cli = getClientes().filter(c => c.salario_ref > 0 && c.lojas_cobradas > 0 && c.status !== 'cancelado');
-  if (!cli.length) { toast('Nenhum cliente com dados de cobrança configurados.', 'err'); return; }
-
-  const lista = document.getElementById('reaj-preview-lista');
-  const salInput = document.getElementById('reaj-salario');
-  if (salInput) salInput.value = '';
-  if (lista) lista.innerHTML = '<div style="color:var(--muted);text-align:center;padding:10px">Informe o novo salário mínimo acima.</div>';
-  openOv('ov-reajuste');
-}
-
-function calcPreviewReajuste() {
-  const novoSal = parseFloat(document.getElementById('reaj-salario')?.value || 0);
-  const lista = document.getElementById('reaj-preview-lista');
-  if (!lista) return;
-  if (!novoSal || novoSal <= 0) {
-    lista.innerHTML = '<div style="color:var(--muted);text-align:center;padding:10px">Informe um valor válido.</div>';
-    return;
-  }
-  const cli = getClientes().filter(c => c.salario_ref > 0 && c.lojas_cobradas > 0 && c.status !== 'cancelado');
-  lista.innerHTML = cli.map(c => {
-    const novo = (novoSal * 0.40 * c.lojas_cobradas).toFixed(2).replace('.',',');
-    const atual = c.valor || '—';
-    return `<div style="display:flex;justify-content:space-between;padding:6px 10px;background:var(--surf2);border-radius:6px;margin-bottom:4px;font-size:12px">
-      <span>${c.fantasia||c.cliente}</span>
-      <span style="color:var(--muted)">${atual} → <strong style="color:var(--accent)">R$ ${novo}</strong></span>
-    </div>`;
-  }).join('') || '<div style="color:var(--muted);text-align:center;padding:10px">Nenhum cliente configurado.</div>';
-}
-
-async function confirmarReajuste() {
-  const novoSal = parseFloat(document.getElementById('reaj-salario')?.value || 0);
-  if (!novoSal || novoSal <= 0) { toast('Informe o novo salário mínimo.', 'err'); return; }
-  if (!confirm('Confirma o reajuste anual?\n\nIsso atualizará o valor de TODOS os clientes com dados de cobrança configurados.')) return;
-  const btn = document.getElementById('btn-confirmar-reajuste');
-  if (btn) { btn.disabled = true; btn.textContent = 'Atualizando...'; }
-  showLoading('Aplicando reajuste anual...');
-  try {
-    const cli = getClientes().filter(c => c.salario_ref > 0 && c.lojas_cobradas > 0 && c.status !== 'cancelado');
-    for (const c of cli) {
-      const novoValor = (novoSal * 0.40 * c.lojas_cobradas).toFixed(2);
-      const dados = { ...c, salario_ref: novoSal, valor: novoValor };
-      await db.setDoc('clientes', String(c._docId || c.id), dados);
-      await addHist(c.id, c.fantasia||c.cliente, 'Reajuste Anual', c.valor||'', novoValor);
-    }
-    await addLog('Reajuste Anual', `Novo salário: R$ ${novoSal} | ${cli.length} clientes atualizados`);
-    hideLoading();
-    toast(`✅ Reajuste aplicado em ${cli.length} cliente(s)!`, 'ok');
-    closeOv('ov-reajuste');
-  } catch(e) {
-    hideLoading();
-    toast('Erro no reajuste: ' + e.message, 'err');
-  } finally {
-    if (btn) { btn.disabled = false; btn.textContent = '✅ Confirmar Reajuste'; }
-  }
-}
-
-</script>
-
-<!-- ══ MODAL: HISTÓRICO DE PAGAMENTOS ═══════════════════════ -->
-<div class="ov" id="ov-hist-pag" onclick="ovClick(event,'ov-hist-pag')">
-  <div class="modal" style="max-width:520px">
-    <div class="mhdr">
-      <h2 id="hist-pag-titulo">Histórico de Pagamentos</h2>
-      <button class="mclose" onclick="closeOv('ov-hist-pag')">✕</button>
-    </div>
-    <div class="mbody">
-      <div id="hist-pag-lista" style="max-height:400px;overflow-y:auto"></div>
-    </div>
-    <div class="mfoot">
-      <button class="btn btn-gh btn-xs" onclick="closeOv('ov-hist-pag')">Fechar</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══ MODAL: REAJUSTE ANUAL ═════════════════════════════════ -->
-<div class="ov" id="ov-reajuste" onclick="ovClick(event,'ov-reajuste')">
-  <div class="modal" style="max-width:560px">
-    <div class="mhdr">
-      <h2>💰 Reajuste Anual</h2>
-      <button class="mclose" onclick="closeOv('ov-reajuste')">✕</button>
-    </div>
-    <div class="mbody">
-      <div style="background:var(--ybg);border:1px solid var(--yellow);border-radius:6px;padding:10px 12px;font-size:12px;color:var(--yellow);margin-bottom:14px">
-        ⚠️ Isso atualizará o valor de <strong>todos os clientes</strong> com dados de cobrança configurados. Confira a prévia antes de confirmar.
-      </div>
-      <div class="fg-row">
-        <div class="fg">
-          <label>Novo Salário Mínimo (R$)</label>
-          <input type="number" id="reaj-salario" step="0.01" placeholder="1518.00" class="finp" oninput="calcPreviewReajuste()">
-        </div>
-        <div class="fg" style="display:flex;align-items:flex-end">
-          <div style="font-size:12px;color:var(--muted);padding-bottom:4px">Valor = Salário × 40% × Lojas cobradas</div>
-        </div>
-      </div>
-      <label style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);display:block;margin:12px 0 6px">Prévia dos novos valores:</label>
-      <div id="reaj-preview-lista" style="max-height:300px;overflow-y:auto"></div>
-    </div>
-    <div class="mfoot">
-      <button class="btn btn-gh btn-xs" onclick="closeOv('ov-reajuste')">Cancelar</button>
-      <button class="btn btn-acc btn-xs" id="btn-confirmar-reajuste" onclick="confirmarReajuste()">✅ Confirmar Reajuste</button>
-    </div>
-  </div>
-</div>
 </body></html>
