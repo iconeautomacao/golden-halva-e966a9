@@ -61,7 +61,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="v2026.10.20.1546">
+<meta name="app-version" content="v2026.10.20.1630">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>gestaosalimesalim</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -652,7 +652,7 @@ tbody tr:last-child td{border-bottom:none;}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:14px;">
       <div class="tlogo">Salim &amp; Salim <small>Gestão de Clientes</small></div>
-      <div id="version-badge" style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(201,168,76,.15);color:#c9a84c;border:1px solid rgba(201,168,76,.3);font-weight:700;white-space:nowrap" title="Versão do sistema">⚡ v2026.10.20.1546 · 20/10/2026 15:46</div>
+      <div id="version-badge" style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(201,168,76,.15);color:#c9a84c;border:1px solid rgba(201,168,76,.3);font-weight:700;white-space:nowrap" title="Versão do sistema">⚡ v2026.10.20.1630 · 20/10/2026 15:46</div>
       <div id="conn-status" style="font-size:11px;padding:3px 10px;border-radius:20px;background:var(--gbg);color:var(--green);display:none;">🟢 Online</div>
       <div class="tnav">
         <div class="tnav-btn on" data-s="clientes" onclick="showSec('clientes')">Clientes</div>
@@ -3707,7 +3707,8 @@ function _processarSincronizacao(iconeClientes) {
   const semCnpj = [];
   const naoEncontrados = [];
 
-  for (const s of clientes) {
+  const clientesSalim = getClientes();
+  for (const s of clientesSalim) {
     if (s.status === 'cancelado') continue;
     const cnpjSalim = (s.cnpj || '').replace(/\D/g, '');
 
@@ -3796,8 +3797,9 @@ async function confirmarSincronizacao() {
     try {
       await db.setDoc('clientes', String(m.salimId), m.novo);
       // Atualizar cache local imediatamente
-      const idx = clientes.findIndex(c => String(c._docId || c.id) === String(m.salimId));
-      if (idx >= 0) Object.assign(clientes[idx], m.novo);
+      const allCli = getClientes();
+      const idx = allCli.findIndex(c => String(c._docId || c.id) === String(m.salimId));
+      if (idx >= 0) Object.assign(allCli[idx], m.novo);
       ok++;
     } catch(e) {
       console.error('Erro ao sincronizar', m.salimNome, e);
