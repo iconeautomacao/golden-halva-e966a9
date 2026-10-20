@@ -61,7 +61,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="v2026.10.20.1630">
+<meta name="app-version" content="v2026.10.20.1645">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>gestaosalimesalim</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -652,7 +652,7 @@ tbody tr:last-child td{border-bottom:none;}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:14px;">
       <div class="tlogo">Salim &amp; Salim <small>Gestão de Clientes</small></div>
-      <div id="version-badge" style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(201,168,76,.15);color:#c9a84c;border:1px solid rgba(201,168,76,.3);font-weight:700;white-space:nowrap" title="Versão do sistema">⚡ v2026.10.20.1630 · 20/10/2026 15:46</div>
+      <div id="version-badge" style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(201,168,76,.15);color:#c9a84c;border:1px solid rgba(201,168,76,.3);font-weight:700;white-space:nowrap" title="Versão do sistema">⚡ v2026.10.20.1645 · 20/10/2026 15:46</div>
       <div id="conn-status" style="font-size:11px;padding:3px 10px;border-radius:20px;background:var(--gbg);color:var(--green);display:none;">🟢 Online</div>
       <div class="tnav">
         <div class="tnav-btn on" data-s="clientes" onclick="showSec('clientes')">Clientes</div>
@@ -748,7 +748,6 @@ tbody tr:last-child td{border-bottom:none;}
     <button class="btn btn-acc btn-xs" id="btn-publicar" onclick="publicarNoGitHub()" title="Enviar nova versão para o GitHub e atualizar o sistema automaticamente">🚀 Publicar</button>
     <button class="btn btn-gh btn-xs" id="btn-importar" onclick="importDB()" title="Importar backup">&#x1F4E5; Importar</button>
     <button class="btn btn-gh btn-xs" id="btn-restaurar" onclick="if(confirm('Restaurar dados originais da planilha?')){resetData();}" title="Restaurar dados originais">↺ Restaurar</button>
-    <button class="btn btn-gh btn-xs" id="btn-sincronizar" onclick="abrirSincronizarIconeSys()" title="Sincronizar dados fiscais com o IconeSys por CNPJ">🔄 Sincronizar IconeSys</button>
   </div>
 
   <!-- CTABS -->
@@ -3584,6 +3583,9 @@ document.addEventListener('keydown', e => { if(e.key==='Escape') fecharFullscree
           <input type="text" id="det-ie" placeholder="IE" class="finp" maxlength="20">
         </div>
       </div>
+      <div style="margin-top:10px">
+        <button class="btn btn-gh btn-xs" onclick="consultarReceita()" title="Consulta pública da Receita Federal pelo CNPJ" style="width:100%;justify-content:center">🔍 Consultar Receita Federal</button>
+      </div>
     </div>
     <div class="mfoot">
       <button class="btn btn-gh btn-xs" onclick="closeOv('ov-cli-det')">Cancelar</button>
@@ -3594,6 +3596,15 @@ document.addEventListener('keydown', e => { if(e.key==='Escape') fecharFullscree
 <script>
 // ── Dados fiscais do cliente ─────────────────────────────────
 let _detCliId = null;
+
+function consultarReceita() {
+  const cnpj = (document.getElementById('det-cnpj')?.value || '').replace(/\D/g, '');
+  if (cnpj.length !== 14) {
+    toast('Digite um CNPJ válido antes de consultar.', 'err');
+    return;
+  }
+  window.open('https://www.receita.fazenda.gov.br/pessoajuridica/cnpj/cnpjreva/cnpjreva_solicitacao2.asp?cnpj=' + cnpj, '_blank');
+}
 
 function maskCNPJ(el) {
   let v = el.value.replace(/\D/g, '').slice(0, 14);
