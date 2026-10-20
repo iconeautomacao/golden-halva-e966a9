@@ -61,7 +61,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="v2026.10.20.1645">
+<meta name="app-version" content="v2026.10.20.1650">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>gestaosalimesalim</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -652,7 +652,7 @@ tbody tr:last-child td{border-bottom:none;}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:14px;">
       <div class="tlogo">Salim &amp; Salim <small>Gestão de Clientes</small></div>
-      <div id="version-badge" style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(201,168,76,.15);color:#c9a84c;border:1px solid rgba(201,168,76,.3);font-weight:700;white-space:nowrap" title="Versão do sistema">⚡ v2026.10.20.1645 · 20/10/2026 15:46</div>
+      <div id="version-badge" style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(201,168,76,.15);color:#c9a84c;border:1px solid rgba(201,168,76,.3);font-weight:700;white-space:nowrap" title="Versão do sistema">⚡ v2026.10.20.1650 · 20/10/2026 15:46</div>
       <div id="conn-status" style="font-size:11px;padding:3px 10px;border-radius:20px;background:var(--gbg);color:var(--green);display:none;">🟢 Online</div>
       <div class="tnav">
         <div class="tnav-btn on" data-s="clientes" onclick="showSec('clientes')">Clientes</div>
@@ -3603,14 +3603,16 @@ function consultarReceita() {
     toast('Digite um CNPJ válido antes de consultar.', 'err');
     return;
   }
-  window.open('https://www.receita.fazenda.gov.br/pessoajuridica/cnpj/cnpjreva/cnpjreva_solicitacao2.asp?cnpj=' + cnpj, '_blank');
+  // Formata como XX.XXX.XXX/XXXX-XX para a URL da Receita
+  const fmt = cnpj.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
+  window.open('https://solucoes.receita.fazenda.gov.br/Servicos/cnpjreva/Cnpjreva_Solicitacao.asp?cnpj=' + fmt, '_blank');
 }
 
 function maskCNPJ(el) {
   let v = el.value.replace(/\D/g, '').slice(0, 14);
   v = v.replace(/^(\d{2})(\d)/, '$1.$2');
   v = v.replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3');
-  v = v.replace(/\.( \d{3})\.(\d{3})(\d)/, '.$1.$2/$3');
+  v = v.replace(/^(\d{2})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3/$4');
   v = v.replace(/(\d{4})(\d)/, '$1-$2');
   el.value = v;
 }
