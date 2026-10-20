@@ -61,7 +61,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="v2026.10.01.1309">
+<meta name="app-version" content="v2026.10.20.1546">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>gestaosalimesalim</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -652,7 +652,7 @@ tbody tr:last-child td{border-bottom:none;}
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:14px;">
       <div class="tlogo">Salim &amp; Salim <small>Gestão de Clientes</small></div>
-      <div id="version-badge" style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(201,168,76,.15);color:#c9a84c;border:1px solid rgba(201,168,76,.3);font-weight:700;white-space:nowrap" title="Versão do sistema">⚡ v2026.10.01.1309 · 01/10/2026 13:09</div>
+      <div id="version-badge" style="font-size:11px;padding:3px 10px;border-radius:20px;background:rgba(201,168,76,.15);color:#c9a84c;border:1px solid rgba(201,168,76,.3);font-weight:700;white-space:nowrap" title="Versão do sistema">⚡ v2026.10.20.1546 · 20/10/2026 15:46</div>
       <div id="conn-status" style="font-size:11px;padding:3px 10px;border-radius:20px;background:var(--gbg);color:var(--green);display:none;">🟢 Online</div>
       <div class="tnav">
         <div class="tnav-btn on" data-s="clientes" onclick="showSec('clientes')">Clientes</div>
@@ -748,6 +748,7 @@ tbody tr:last-child td{border-bottom:none;}
     <button class="btn btn-acc btn-xs" id="btn-publicar" onclick="publicarNoGitHub()" title="Enviar nova versão para o GitHub e atualizar o sistema automaticamente">🚀 Publicar</button>
     <button class="btn btn-gh btn-xs" id="btn-importar" onclick="importDB()" title="Importar backup">&#x1F4E5; Importar</button>
     <button class="btn btn-gh btn-xs" id="btn-restaurar" onclick="if(confirm('Restaurar dados originais da planilha?')){resetData();}" title="Restaurar dados originais">↺ Restaurar</button>
+    <button class="btn btn-gh btn-xs" id="btn-sincronizar" onclick="abrirSincronizarIconeSys()" title="Sincronizar dados fiscais com o IconeSys por CNPJ">🔄 Sincronizar IconeSys</button>
   </div>
 
   <!-- CTABS -->
@@ -1462,7 +1463,7 @@ function initApp(){
   const isA=CU.role==='admin';
 
   // Botões só para admin
-  const adminOnlyIds=['btn-novo','btn-limpar','btn-excel','btn-backup','btn-importar','btn-restaurar','fab-novo','btn-publicar'];
+  const adminOnlyIds=['btn-novo','btn-limpar','btn-excel','btn-backup','btn-importar','btn-restaurar','fab-novo','btn-publicar','btn-sincronizar'];
   adminOnlyIds.forEach(id=>{
     const el=document.getElementById(id);
     if(el)el.style.display=isA?'':'none';
@@ -3524,6 +3525,40 @@ document.addEventListener('keydown', e => { if(e.key==='Escape') fecharFullscree
 </script>
 
 <!-- ══ MODAL: DETALHES FISCAIS DO CLIENTE ════════════════════ -->
+<!-- MODAL SINCRONIZAR ICONESYS -->
+<div class="ov" id="ov-sinc" onclick="ovClick(event,'ov-sinc')">
+  <div class="modal" style="max-width:660px">
+    <div class="mhdr">
+      <h2>🔄 Sincronizar com IconeSys</h2>
+      <button class="mclose" onclick="closeOv('ov-sinc')">✕</button>
+    </div>
+    <div class="mbody">
+      <p style="color:#aaa;font-size:13px;margin-bottom:14px">Compara clientes pelo <b>CNPJ</b> entre IconeSys e Salim & Salim. Preenche automaticamente Fantasia, Razão Social e IE nos clientes encontrados.</p>
+      <div id="sinc-upload-area" style="border:2px dashed #444;border-radius:8px;padding:24px;text-align:center;cursor:pointer;margin-bottom:12px" onclick="document.getElementById('sinc-file-input').click()">
+        <div style="font-size:28px;margin-bottom:8px">📂</div>
+        <div style="color:#c9a84c;font-weight:700;margin-bottom:4px">Selecione o backup do IconeSys (.json)</div>
+        <div style="color:#666;font-size:12px">Exporte pelo botão "Backup" no IconeSys e selecione aqui</div>
+        <input type="file" id="sinc-file-input" accept=".json" style="display:none" onchange="carregarBackupIconeSys(this)">
+      </div>
+      <div id="sinc-status" style="display:none;text-align:center;padding:20px;color:#aaa">
+        <span id="sinc-loading">⏳ Processando...</span>
+      </div>
+      <div id="sinc-preview" style="display:none">
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:12px;font-size:13px">
+          <span id="sinc-count-match" style="color:#4caf50;font-weight:700"></span>
+          <span id="sinc-count-no-cnpj" style="color:#ff9800"></span>
+          <span id="sinc-count-not-found" style="color:#888"></span>
+        </div>
+        <div id="sinc-list" style="max-height:340px;overflow-y:auto;border:1px solid #333;border-radius:6px"></div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-gh btn-xs" onclick="closeOv('ov-sinc')">Cancelar</button>
+      <button class="btn btn-acc btn-xs" id="btn-sinc-confirmar" onclick="confirmarSincronizacao()" style="display:none">✔ Aplicar Sincronização</button>
+    </div>
+  </div>
+</div>
+
 <div class="ov" id="ov-cli-det" onclick="ovClick(event,'ov-cli-det')">
   <div class="modal" style="max-width:480px">
     <div class="mhdr">
@@ -3618,5 +3653,163 @@ async function salvarDetalhes() {
   }
 }
 
+</script>
+
+<script>
+// ── Sincronização com IconeSys ───────────────────────────────────────────────
+let _sincMatches = [];
+
+function abrirSincronizarIconeSys() {
+  openOv('ov-sinc');
+  // Reset
+  document.getElementById('sinc-upload-area').style.display = 'block';
+  document.getElementById('sinc-status').style.display = 'none';
+  document.getElementById('sinc-preview').style.display = 'none';
+  document.getElementById('btn-sinc-confirmar').style.display = 'none';
+  document.getElementById('sinc-file-input').value = '';
+  _sincMatches = [];
+}
+
+function carregarBackupIconeSys(input) {
+  const file = input.files[0];
+  if (!file) return;
+  if (!file.name.endsWith('.json')) { toast('Selecione um arquivo .json', 'err'); return; }
+
+  document.getElementById('sinc-upload-area').style.display = 'none';
+  document.getElementById('sinc-status').style.display = 'block';
+  document.getElementById('sinc-loading').textContent = '⏳ Processando backup...';
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const iconeClientes = JSON.parse(e.target.result);
+      if (!Array.isArray(iconeClientes)) throw new Error('Formato inválido — esperado um array de clientes');
+      _processarSincronizacao(iconeClientes);
+    } catch(err) {
+      document.getElementById('sinc-loading').textContent = '❌ Erro ao ler arquivo: ' + err.message;
+    }
+  };
+  reader.readAsText(file);
+}
+
+function _processarSincronizacao(iconeClientes) {
+  // Montar mapa CNPJ -> dados IconeSys
+  const iconeMap = {};
+  for (const c of iconeClientes) {
+    if (c.cnpj) {
+      const cnpjLimpo = c.cnpj.replace(/\D/g, '');
+      if (cnpjLimpo.length === 14) iconeMap[cnpjLimpo] = c;
+    }
+  }
+
+  // Cruzar com clientes do Salim (apenas ativos/pendentes)
+  const matches = [];
+  const semCnpj = [];
+  const naoEncontrados = [];
+
+  for (const s of clientes) {
+    if (s.status === 'cancelado') continue;
+    const cnpjSalim = (s.cnpj || '').replace(/\D/g, '');
+
+    if (!cnpjSalim || cnpjSalim.length !== 14) {
+      semCnpj.push(s);
+      continue;
+    }
+
+    const icone = iconeMap[cnpjSalim];
+    if (icone) {
+      const novaFantasia = (icone.fantasia || '').toUpperCase();
+      const novaRazao = (icone.razaoSocial || '').toUpperCase();
+      const novaIE = (icone.inscricaoEstadual || '').toUpperCase();
+      const atualFantasia = (s.fantasia || s.cliente || '').toUpperCase();
+      const atualRazao = (s.razao_social || '').toUpperCase();
+      const atualIE = (s.inscricao_estadual || '').toUpperCase();
+
+      const temDiff = (novaFantasia && novaFantasia !== atualFantasia)
+        || (novaRazao && novaRazao !== atualRazao)
+        || (novaIE && novaIE !== atualIE);
+
+      matches.push({
+        salimId: s._docId || s.id,
+        salimNome: s.fantasia || s.cliente || '',
+        temDiff,
+        atual: { fantasia: atualFantasia, razao_social: atualRazao, inscricao_estadual: atualIE },
+        novo: {
+          fantasia: novaFantasia || atualFantasia,
+          cliente: novaFantasia || atualFantasia,
+          razao_social: novaRazao || atualRazao,
+          cnpj: s.cnpj,
+          inscricao_estadual: novaIE || atualIE
+        }
+      });
+    } else {
+      naoEncontrados.push(s);
+    }
+  }
+
+  _sincMatches = matches;
+  const comDiff = matches.filter(m => m.temDiff);
+
+  // Contadores
+  document.getElementById('sinc-count-match').textContent = `✅ ${comDiff.length} com atualizações`;
+  document.getElementById('sinc-count-no-cnpj').textContent = `⚠️ ${semCnpj.length} sem CNPJ`;
+  document.getElementById('sinc-count-not-found').textContent = `❌ ${naoEncontrados.length} não encontrados`;
+
+  // Lista de preview
+  let html = '';
+  if (comDiff.length === 0) {
+    html = '<div style="padding:24px;text-align:center;color:#aaa;font-size:14px">✨ Todos os clientes já estão atualizados!</div>';
+  } else {
+    for (const m of comDiff) {
+      const rows = [];
+      if (m.novo.fantasia !== m.atual.fantasia)
+        rows.push(`<tr><td style="color:#888;padding:2px 8px 2px 0;white-space:nowrap">Fantasia</td><td style="color:#777;padding:2px 8px">${sanitize(m.atual.fantasia)||'—'}</td><td style="color:#4caf50;padding:2px 0">→ ${sanitize(m.novo.fantasia)}</td></tr>`);
+      if (m.novo.razao_social !== m.atual.razao_social)
+        rows.push(`<tr><td style="color:#888;padding:2px 8px 2px 0;white-space:nowrap">Razão Social</td><td style="color:#777;padding:2px 8px">${sanitize(m.atual.razao_social)||'—'}</td><td style="color:#4caf50;padding:2px 0">→ ${sanitize(m.novo.razao_social)}</td></tr>`);
+      if (m.novo.inscricao_estadual !== m.atual.inscricao_estadual)
+        rows.push(`<tr><td style="color:#888;padding:2px 8px 2px 0;white-space:nowrap">IE</td><td style="color:#777;padding:2px 8px">${sanitize(m.atual.inscricao_estadual)||'—'}</td><td style="color:#4caf50;padding:2px 0">→ ${sanitize(m.novo.inscricao_estadual)||'—'}</td></tr>`);
+
+      html += `<div style="padding:10px 14px;border-bottom:1px solid #222">
+        <div style="font-weight:700;color:#c9a84c;margin-bottom:6px;font-size:13px">${sanitize(m.salimNome)}</div>
+        <table style="font-size:12px;border-collapse:collapse;width:100%">${rows.join('')}</table>
+      </div>`;
+    }
+  }
+  document.getElementById('sinc-list').innerHTML = html;
+  document.getElementById('sinc-status').style.display = 'none';
+  document.getElementById('sinc-preview').style.display = 'block';
+  if (comDiff.length > 0) document.getElementById('btn-sinc-confirmar').style.display = '';
+}
+
+async function confirmarSincronizacao() {
+  const comDiff = _sincMatches.filter(m => m.temDiff);
+  if (comDiff.length === 0) return;
+
+  if (!confirm(`Aplicar sincronização em ${comDiff.length} cliente(s)?\n\nEsta ação atualizará Fantasia, Razão Social e IE no Salim & Salim.`)) return;
+
+  const btn = document.getElementById('btn-sinc-confirmar');
+  btn.disabled = true;
+  btn.textContent = '⏳ Aplicando...';
+
+  let ok = 0, err = 0;
+  for (const m of comDiff) {
+    try {
+      await db.setDoc('clientes', String(m.salimId), m.novo);
+      // Atualizar cache local imediatamente
+      const idx = clientes.findIndex(c => String(c._docId || c.id) === String(m.salimId));
+      if (idx >= 0) Object.assign(clientes[idx], m.novo);
+      ok++;
+    } catch(e) {
+      console.error('Erro ao sincronizar', m.salimNome, e);
+      err++;
+    }
+  }
+
+  btn.disabled = false;
+  btn.textContent = '✔ Aplicar Sincronização';
+  closeOv('ov-sinc');
+  renderTable();
+  toast(`✅ ${ok} cliente(s) sincronizados${err ? ` | ❌ ${err} erros` : ''}!`, ok > 0 ? 'ok' : 'err');
+}
 </script>
 </body></html>
