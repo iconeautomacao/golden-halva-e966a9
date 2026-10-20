@@ -3707,7 +3707,8 @@ function _processarSincronizacao(iconeClientes) {
   const semCnpj = [];
   const naoEncontrados = [];
 
-  for (const s of clientes) {
+  const clientesSalim = getClientes();
+  for (const s of clientesSalim) {
     if (s.status === 'cancelado') continue;
     const cnpjSalim = (s.cnpj || '').replace(/\D/g, '');
 
@@ -3796,8 +3797,9 @@ async function confirmarSincronizacao() {
     try {
       await db.setDoc('clientes', String(m.salimId), m.novo);
       // Atualizar cache local imediatamente
-      const idx = clientes.findIndex(c => String(c._docId || c.id) === String(m.salimId));
-      if (idx >= 0) Object.assign(clientes[idx], m.novo);
+      const allCli = getClientes();
+      const idx = allCli.findIndex(c => String(c._docId || c.id) === String(m.salimId));
+      if (idx >= 0) Object.assign(allCli[idx], m.novo);
       ok++;
     } catch(e) {
       console.error('Erro ao sincronizar', m.salimNome, e);
